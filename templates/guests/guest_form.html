@@ -1,0 +1,558 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ title }}
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                {% if guest.pk %}Update guest information{% else %}Register a new guest{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Guest Form -->
+<div class="card">
+    <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+        {% csrf_token %}
+        <!-- Guest Type Selector -->
+        <div>
+            <label for="guest_type" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                Guest Type
+            </label>
+            <select name="guest_type" id="guest_type" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                <option value="booking" {% if guest.guest_type == 'booking' or not guest.guest_type %}selected{% endif %}>Booking Guest</option>
+                <option value="gym" {% if guest.guest_type == 'gym' %}selected{% endif %}>Gym Guest</option>
+                <option value="swimming" {% if guest.guest_type == 'swimming' %}selected{% endif %}>Swimming Pool Guest</option>
+            </select>
+        </div>
+        
+        <!-- Personal Information -->
+        <div>
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Personal Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                <!-- First Name -->
+                <div>
+                    <label for="first_name" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        First Name *
+                    </label>
+                    <input type="text" name="first_name" id="first_name" value="{{ guest.first_name|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter first name" required>
+                </div>
+
+                <!-- Last Name -->
+                <!-- Age (for gym/swimming) -->
+                <div class="simple-only">
+                    <label for="age" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Age
+                    </label>
+                    <input type="number" name="age" id="age" value="{{ guest.age|default:'' }}"
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter age">
+                </div>
+                <div>
+                    <label for="last_name" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Last Name *
+                    </label>
+                    <input type="text" name="last_name" id="last_name" value="{{ guest.last_name|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter last name" required>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="booking-only">
+                    <label for="date_of_birth" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Date of Birth
+                    </label>
+                    <input type="date" name="date_of_birth" id="date_of_birth" value="{{ guest.date_of_birth|date:'Y-m-d'|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label for="gender" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Gender
+                    </label>
+                    <select name="gender" id="gender" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                        <option value="">Select gender</option>
+                        <option value="M" {% if guest.gender == 'M' %}selected{% endif %}>Male</option>
+                        <option value="F" {% if guest.gender == 'F' %}selected{% endif %}>Female</option>
+                        <option value="O" {% if guest.gender == 'O' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- Nationality -->
+                <div class="booking-only">
+                    <label for="nationality" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Nationality
+                    </label>
+                    <select name="nationality" id="nationality" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                        <option value="">Select nationality</option>
+                        <option value="Afghanistan" {% if guest.nationality == 'Afghanistan' %}selected{% endif %}>🏳️ Afghanistan</option>
+                        <option value="Albania" {% if guest.nationality == 'Albania' %}selected{% endif %}>🇦🇱 Albania</option>
+                        <option value="Algeria" {% if guest.nationality == 'Algeria' %}selected{% endif %}>🇩🇿 Algeria</option>
+                        <option value="Andorra" {% if guest.nationality == 'Andorra' %}selected{% endif %}>🇦🇩 Andorra</option>
+                        <option value="Angola" {% if guest.nationality == 'Angola' %}selected{% endif %}>🇦🇴 Angola</option>
+                        <option value="Antigua and Barbuda" {% if guest.nationality == 'Antigua and Barbuda' %}selected{% endif %}>🇦🇬 Antigua and Barbuda</option>
+                        <option value="Argentina" {% if guest.nationality == 'Argentina' %}selected{% endif %}>🇦🇷 Argentina</option>
+                        <option value="Armenia" {% if guest.nationality == 'Armenia' %}selected{% endif %}>🇦🇲 Armenia</option>
+                        <option value="Australia" {% if guest.nationality == 'Australia' %}selected{% endif %}>🇦🇺 Australia</option>
+                        <option value="Austria" {% if guest.nationality == 'Austria' %}selected{% endif %}>🇦🇹 Austria</option>
+                        <option value="Azerbaijan" {% if guest.nationality == 'Azerbaijan' %}selected{% endif %}>🇦🇿 Azerbaijan</option>
+                        <option value="Bahamas" {% if guest.nationality == 'Bahamas' %}selected{% endif %}>🇧🇸 Bahamas</option>
+                        <option value="Bahrain" {% if guest.nationality == 'Bahrain' %}selected{% endif %}>🇧🇭 Bahrain</option>
+                        <option value="Bangladesh" {% if guest.nationality == 'Bangladesh' %}selected{% endif %}>🇧🇩 Bangladesh</option>
+                        <option value="Barbados" {% if guest.nationality == 'Barbados' %}selected{% endif %}>🇧🇧 Barbados</option>
+                        <option value="Belarus" {% if guest.nationality == 'Belarus' %}selected{% endif %}>🇧🇾 Belarus</option>
+                        <option value="Belgium" {% if guest.nationality == 'Belgium' %}selected{% endif %}>🇧🇪 Belgium</option>
+                        <option value="Belize" {% if guest.nationality == 'Belize' %}selected{% endif %}>🇧🇿 Belize</option>
+                        <option value="Benin" {% if guest.nationality == 'Benin' %}selected{% endif %}>🇧🇯 Benin</option>
+                        <option value="Bhutan" {% if guest.nationality == 'Bhutan' %}selected{% endif %}>🇧🇹 Bhutan</option>
+                        <option value="Bolivia" {% if guest.nationality == 'Bolivia' %}selected{% endif %}>🇧🇴 Bolivia</option>
+                        <option value="Bosnia and Herzegovina" {% if guest.nationality == 'Bosnia and Herzegovina' %}selected{% endif %}>🇧🇦 Bosnia and Herzegovina</option>
+                        <option value="Botswana" {% if guest.nationality == 'Botswana' %}selected{% endif %}>🇧🇼 Botswana</option>
+                        <option value="Brazil" {% if guest.nationality == 'Brazil' %}selected{% endif %}>🇧🇷 Brazil</option>
+                        <option value="Brunei" {% if guest.nationality == 'Brunei' %}selected{% endif %}>🇧🇳 Brunei</option>
+                        <option value="Bulgaria" {% if guest.nationality == 'Bulgaria' %}selected{% endif %}>🇧🇬 Bulgaria</option>
+                        <option value="Burkina Faso" {% if guest.nationality == 'Burkina Faso' %}selected{% endif %}>🇧🇫 Burkina Faso</option>
+                        <option value="Burundi" {% if guest.nationality == 'Burundi' %}selected{% endif %}>🇧🇮 Burundi</option>
+                        <option value="Cambodia" {% if guest.nationality == 'Cambodia' %}selected{% endif %}>🇰🇭 Cambodia</option>
+                        <option value="Cameroon" {% if guest.nationality == 'Cameroon' %}selected{% endif %}>🇨🇲 Cameroon</option>
+                        <option value="Canada" {% if guest.nationality == 'Canada' %}selected{% endif %}>🇨🇦 Canada</option>
+                        <option value="Cape Verde" {% if guest.nationality == 'Cape Verde' %}selected{% endif %}>🇨🇻 Cape Verde</option>
+                        <option value="Central African Republic" {% if guest.nationality == 'Central African Republic' %}selected{% endif %}>🇨🇫 Central African Republic</option>
+                        <option value="Chad" {% if guest.nationality == 'Chad' %}selected{% endif %}>🇹🇩 Chad</option>
+                        <option value="Chile" {% if guest.nationality == 'Chile' %}selected{% endif %}>🇨🇱 Chile</option>
+                        <option value="China" {% if guest.nationality == 'China' %}selected{% endif %}>🇨🇳 China</option>
+                        <option value="Colombia" {% if guest.nationality == 'Colombia' %}selected{% endif %}>🇨🇴 Colombia</option>
+                        <option value="Comoros" {% if guest.nationality == 'Comoros' %}selected{% endif %}>🇰🇲 Comoros</option>
+                        <option value="Congo" {% if guest.nationality == 'Congo' %}selected{% endif %}>🇨🇬 Congo</option>
+                        <option value="Costa Rica" {% if guest.nationality == 'Costa Rica' %}selected{% endif %}>🇨🇷 Costa Rica</option>
+                        <option value="Croatia" {% if guest.nationality == 'Croatia' %}selected{% endif %}>🇭🇷 Croatia</option>
+                        <option value="Cuba" {% if guest.nationality == 'Cuba' %}selected{% endif %}>🇨🇺 Cuba</option>
+                        <option value="Cyprus" {% if guest.nationality == 'Cyprus' %}selected{% endif %}>🇨🇾 Cyprus</option>
+                        <option value="Czech Republic" {% if guest.nationality == 'Czech Republic' %}selected{% endif %}>🇨🇿 Czech Republic</option>
+                        <option value="Democratic Republic of the Congo" {% if guest.nationality == 'Democratic Republic of the Congo' %}selected{% endif %}>🇨🇩 Democratic Republic of the Congo</option>
+                        <option value="Denmark" {% if guest.nationality == 'Denmark' %}selected{% endif %}>🇩🇰 Denmark</option>
+                        <option value="Djibouti" {% if guest.nationality == 'Djibouti' %}selected{% endif %}>🇩🇯 Djibouti</option>
+                        <option value="Dominica" {% if guest.nationality == 'Dominica' %}selected{% endif %}>🇩🇲 Dominica</option>
+                        <option value="Dominican Republic" {% if guest.nationality == 'Dominican Republic' %}selected{% endif %}>🇩🇴 Dominican Republic</option>
+                        <option value="East Timor" {% if guest.nationality == 'East Timor' %}selected{% endif %}>🇹🇱 East Timor</option>
+                        <option value="Ecuador" {% if guest.nationality == 'Ecuador' %}selected{% endif %}>🇪🇨 Ecuador</option>
+                        <option value="Egypt" {% if guest.nationality == 'Egypt' %}selected{% endif %}>🇪🇬 Egypt</option>
+                        <option value="El Salvador" {% if guest.nationality == 'El Salvador' %}selected{% endif %}>🇸🇻 El Salvador</option>
+                        <option value="Equatorial Guinea" {% if guest.nationality == 'Equatorial Guinea' %}selected{% endif %}>🇬🇶 Equatorial Guinea</option>
+                        <option value="Eritrea" {% if guest.nationality == 'Eritrea' %}selected{% endif %}>🇪🇷 Eritrea</option>
+                        <option value="Estonia" {% if guest.nationality == 'Estonia' %}selected{% endif %}>🇪🇪 Estonia</option>
+                        <option value="Eswatini" {% if guest.nationality == 'Eswatini' %}selected{% endif %}>🇸🇿 Eswatini</option>
+                        <option value="Ethiopia" {% if guest.nationality == 'Ethiopia' %}selected{% endif %}>🇪🇹 Ethiopia</option>
+                        <option value="Fiji" {% if guest.nationality == 'Fiji' %}selected{% endif %}>🇫🇯 Fiji</option>
+                        <option value="Finland" {% if guest.nationality == 'Finland' %}selected{% endif %}>🇫🇮 Finland</option>
+                        <option value="France" {% if guest.nationality == 'France' %}selected{% endif %}>🇫🇷 France</option>
+                        <option value="Gabon" {% if guest.nationality == 'Gabon' %}selected{% endif %}>🇬🇦 Gabon</option>
+                        <option value="Gambia" {% if guest.nationality == 'Gambia' %}selected{% endif %}>🇬🇲 Gambia</option>
+                        <option value="Georgia" {% if guest.nationality == 'Georgia' %}selected{% endif %}>🇬🇪 Georgia</option>
+                        <option value="Germany" {% if guest.nationality == 'Germany' %}selected{% endif %}>🇩🇪 Germany</option>
+                        <option value="Ghana" {% if guest.nationality == 'Ghana' %}selected{% endif %}>🇬🇭 Ghana</option>
+                        <option value="Greece" {% if guest.nationality == 'Greece' %}selected{% endif %}>🇬🇷 Greece</option>
+                        <option value="Grenada" {% if guest.nationality == 'Grenada' %}selected{% endif %}>🇬🇩 Grenada</option>
+                        <option value="Guatemala" {% if guest.nationality == 'Guatemala' %}selected{% endif %}>🇬🇹 Guatemala</option>
+                        <option value="Guinea" {% if guest.nationality == 'Guinea' %}selected{% endif %}>🇬🇳 Guinea</option>
+                        <option value="Guinea-Bissau" {% if guest.nationality == 'Guinea-Bissau' %}selected{% endif %}>🇬🇼 Guinea-Bissau</option>
+                        <option value="Guyana" {% if guest.nationality == 'Guyana' %}selected{% endif %}>🇬🇾 Guyana</option>
+                        <option value="Haiti" {% if guest.nationality == 'Haiti' %}selected{% endif %}>🇭🇹 Haiti</option>
+                        <option value="Honduras" {% if guest.nationality == 'Honduras' %}selected{% endif %}>🇭🇳 Honduras</option>
+                        <option value="Hong Kong" {% if guest.nationality == 'Hong Kong' %}selected{% endif %}>🇭🇰 Hong Kong</option>
+                        <option value="Hungary" {% if guest.nationality == 'Hungary' %}selected{% endif %}>🇭🇺 Hungary</option>
+                        <option value="Iceland" {% if guest.nationality == 'Iceland' %}selected{% endif %}>🇮🇸 Iceland</option>
+                        <option value="India" {% if guest.nationality == 'India' %}selected{% endif %}>🇮🇳 India</option>
+                        <option value="Indonesia" {% if guest.nationality == 'Indonesia' %}selected{% endif %}>🇮🇩 Indonesia</option>
+                        <option value="Iran" {% if guest.nationality == 'Iran' %}selected{% endif %}>🇮🇷 Iran</option>
+                        <option value="Iraq" {% if guest.nationality == 'Iraq' %}selected{% endif %}>🇮🇶 Iraq</option>
+                        <option value="Ireland" {% if guest.nationality == 'Ireland' %}selected{% endif %}>🇮🇪 Ireland</option>
+                        <option value="Israel" {% if guest.nationality == 'Israel' %}selected{% endif %}>🇮🇱 Israel</option>
+                        <option value="Italy" {% if guest.nationality == 'Italy' %}selected{% endif %}>🇮🇹 Italy</option>
+                        <option value="Ivory Coast" {% if guest.nationality == 'Ivory Coast' %}selected{% endif %}>🇨🇮 Ivory Coast</option>
+                        <option value="Jamaica" {% if guest.nationality == 'Jamaica' %}selected{% endif %}>🇯🇲 Jamaica</option>
+                        <option value="Japan" {% if guest.nationality == 'Japan' %}selected{% endif %}>🇯🇵 Japan</option>
+                        <option value="Jordan" {% if guest.nationality == 'Jordan' %}selected{% endif %}>🇯🇴 Jordan</option>
+                        <option value="Kazakhstan" {% if guest.nationality == 'Kazakhstan' %}selected{% endif %}>🇰🇿 Kazakhstan</option>
+                        <option value="Kenya" {% if guest.nationality == 'Kenya' %}selected{% endif %}>🇰🇪 Kenya</option>
+                        <option value="Kiribati" {% if guest.nationality == 'Kiribati' %}selected{% endif %}>🇰🇮 Kiribati</option>
+                        <option value="Kuwait" {% if guest.nationality == 'Kuwait' %}selected{% endif %}>🇰🇼 Kuwait</option>
+                        <option value="Kyrgyzstan" {% if guest.nationality == 'Kyrgyzstan' %}selected{% endif %}>🇰🇬 Kyrgyzstan</option>
+                        <option value="Laos" {% if guest.nationality == 'Laos' %}selected{% endif %}>🇱🇦 Laos</option>
+                        <option value="Latvia" {% if guest.nationality == 'Latvia' %}selected{% endif %}>🇱🇻 Latvia</option>
+                        <option value="Lebanon" {% if guest.nationality == 'Lebanon' %}selected{% endif %}>🇱🇧 Lebanon</option>
+                        <option value="Lesotho" {% if guest.nationality == 'Lesotho' %}selected{% endif %}>🇱🇸 Lesotho</option>
+                        <option value="Liberia" {% if guest.nationality == 'Liberia' %}selected{% endif %}>🇱🇷 Liberia</option>
+                        <option value="Libya" {% if guest.nationality == 'Libya' %}selected{% endif %}>🇱🇾 Libya</option>
+                        <option value="Liechtenstein" {% if guest.nationality == 'Liechtenstein' %}selected{% endif %}>🇱🇮 Liechtenstein</option>
+                        <option value="Lithuania" {% if guest.nationality == 'Lithuania' %}selected{% endif %}>🇱🇹 Lithuania</option>
+                        <option value="Luxembourg" {% if guest.nationality == 'Luxembourg' %}selected{% endif %}>🇱🇺 Luxembourg</option>
+                        <option value="Macau" {% if guest.nationality == 'Macau' %}selected{% endif %}>🇲🇴 Macau</option>
+                        <option value="Madagascar" {% if guest.nationality == 'Madagascar' %}selected{% endif %}>🇲🇬 Madagascar</option>
+                        <option value="Malawi" {% if guest.nationality == 'Malawi' %}selected{% endif %}>🇲🇼 Malawi</option>
+                        <option value="Malaysia" {% if guest.nationality == 'Malaysia' %}selected{% endif %}>🇲🇾 Malaysia</option>
+                        <option value="Maldives" {% if guest.nationality == 'Maldives' %}selected{% endif %}>🇲🇻 Maldives</option>
+                        <option value="Mali" {% if guest.nationality == 'Mali' %}selected{% endif %}>🇲🇱 Mali</option>
+                        <option value="Malta" {% if guest.nationality == 'Malta' %}selected{% endif %}>🇲🇹 Malta</option>
+                        <option value="Marshall Islands" {% if guest.nationality == 'Marshall Islands' %}selected{% endif %}>🇲🇭 Marshall Islands</option>
+                        <option value="Mauritania" {% if guest.nationality == 'Mauritania' %}selected{% endif %}>🇲🇷 Mauritania</option>
+                        <option value="Mauritius" {% if guest.nationality == 'Mauritius' %}selected{% endif %}>🇲🇺 Mauritius</option>
+                        <option value="Mexico" {% if guest.nationality == 'Mexico' %}selected{% endif %}>🇲🇽 Mexico</option>
+                        <option value="Micronesia" {% if guest.nationality == 'Micronesia' %}selected{% endif %}>🇫🇲 Micronesia</option>
+                        <option value="Moldova" {% if guest.nationality == 'Moldova' %}selected{% endif %}>🇲🇩 Moldova</option>
+                        <option value="Monaco" {% if guest.nationality == 'Monaco' %}selected{% endif %}>🇲🇨 Monaco</option>
+                        <option value="Mongolia" {% if guest.nationality == 'Mongolia' %}selected{% endif %}>🇲🇳 Mongolia</option>
+                        <option value="Montenegro" {% if guest.nationality == 'Montenegro' %}selected{% endif %}>🇲🇪 Montenegro</option>
+                        <option value="Morocco" {% if guest.nationality == 'Morocco' %}selected{% endif %}>🇲🇦 Morocco</option>
+                        <option value="Mozambique" {% if guest.nationality == 'Mozambique' %}selected{% endif %}>🇲🇿 Mozambique</option>
+                        <option value="Myanmar" {% if guest.nationality == 'Myanmar' %}selected{% endif %}>🇲🇲 Myanmar</option>
+                        <option value="Namibia" {% if guest.nationality == 'Namibia' %}selected{% endif %}>🇳🇦 Namibia</option>
+                        <option value="Nauru" {% if guest.nationality == 'Nauru' %}selected{% endif %}>🇳🇷 Nauru</option>
+                        <option value="Nepal" {% if guest.nationality == 'Nepal' %}selected{% endif %}>🇳🇵 Nepal</option>
+                        <option value="Netherlands" {% if guest.nationality == 'Netherlands' %}selected{% endif %}>🇳🇱 Netherlands</option>
+                        <option value="New Zealand" {% if guest.nationality == 'New Zealand' %}selected{% endif %}>🇳🇿 New Zealand</option>
+                        <option value="Nicaragua" {% if guest.nationality == 'Nicaragua' %}selected{% endif %}>🇳🇮 Nicaragua</option>
+                        <option value="Niger" {% if guest.nationality == 'Niger' %}selected{% endif %}>🇳🇪 Niger</option>
+                        <option value="Nigeria" {% if guest.nationality == 'Nigeria' %}selected{% endif %}>🇳🇬 Nigeria</option>
+                        <option value="North Korea" {% if guest.nationality == 'North Korea' %}selected{% endif %}>🇰🇵 North Korea</option>
+                        <option value="North Macedonia" {% if guest.nationality == 'North Macedonia' %}selected{% endif %}>🇲🇰 North Macedonia</option>
+                        <option value="Norway" {% if guest.nationality == 'Norway' %}selected{% endif %}>🇳🇴 Norway</option>
+                        <option value="Oman" {% if guest.nationality == 'Oman' %}selected{% endif %}>🇴🇲 Oman</option>
+                        <option value="Pakistan" {% if guest.nationality == 'Pakistan' %}selected{% endif %}>🇵🇰 Pakistan</option>
+                        <option value="Palau" {% if guest.nationality == 'Palau' %}selected{% endif %}>🇵🇼 Palau</option>
+                        <option value="Palestine" {% if guest.nationality == 'Palestine' %}selected{% endif %}>🇵🇸 Palestine</option>
+                        <option value="Panama" {% if guest.nationality == 'Panama' %}selected{% endif %}>🇵🇦 Panama</option>
+                        <option value="Papua New Guinea" {% if guest.nationality == 'Papua New Guinea' %}selected{% endif %}>🇵🇬 Papua New Guinea</option>
+                        <option value="Paraguay" {% if guest.nationality == 'Paraguay' %}selected{% endif %}>🇵🇾 Paraguay</option>
+                        <option value="Peru" {% if guest.nationality == 'Peru' %}selected{% endif %}>🇵🇪 Peru</option>
+                        <option value="Philippines" {% if guest.nationality == 'Philippines' %}selected{% endif %}>🇵🇭 Philippines</option>
+                        <option value="Poland" {% if guest.nationality == 'Poland' %}selected{% endif %}>🇵🇱 Poland</option>
+                        <option value="Portugal" {% if guest.nationality == 'Portugal' %}selected{% endif %}>🇵🇹 Portugal</option>
+                        <option value="Qatar" {% if guest.nationality == 'Qatar' %}selected{% endif %}>🇶🇦 Qatar</option>
+                        <option value="Romania" {% if guest.nationality == 'Romania' %}selected{% endif %}>🇷🇴 Romania</option>
+                        <option value="Russia" {% if guest.nationality == 'Russia' %}selected{% endif %}>🇷🇺 Russia</option>
+                        <option value="Rwanda" {% if guest.nationality == 'Rwanda' %}selected{% endif %}>🇷🇼 Rwanda</option>
+                        <option value="Saint Kitts and Nevis" {% if guest.nationality == 'Saint Kitts and Nevis' %}selected{% endif %}>🇰🇳 Saint Kitts and Nevis</option>
+                        <option value="Saint Lucia" {% if guest.nationality == 'Saint Lucia' %}selected{% endif %}>🇱🇨 Saint Lucia</option>
+                        <option value="Saint Vincent and the Grenadines" {% if guest.nationality == 'Saint Vincent and the Grenadines' %}selected{% endif %}>🇻🇨 Saint Vincent and the Grenadines</option>
+                        <option value="Samoa" {% if guest.nationality == 'Samoa' %}selected{% endif %}>🇼🇸 Samoa</option>
+                        <option value="San Marino" {% if guest.nationality == 'San Marino' %}selected{% endif %}>🇸🇲 San Marino</option>
+                        <option value="Sao Tome and Principe" {% if guest.nationality == 'Sao Tome and Principe' %}selected{% endif %}>🇸🇹 Sao Tome and Principe</option>
+                        <option value="Saudi Arabia" {% if guest.nationality == 'Saudi Arabia' %}selected{% endif %}>🇸🇦 Saudi Arabia</option>
+                        <option value="Senegal" {% if guest.nationality == 'Senegal' %}selected{% endif %}>🇸🇳 Senegal</option>
+                        <option value="Serbia" {% if guest.nationality == 'Serbia' %}selected{% endif %}>🇷🇸 Serbia</option>
+                        <option value="Seychelles" {% if guest.nationality == 'Seychelles' %}selected{% endif %}>🇸🇨 Seychelles</option>
+                        <option value="Sierra Leone" {% if guest.nationality == 'Sierra Leone' %}selected{% endif %}>🇸🇱 Sierra Leone</option>
+                        <option value="Singapore" {% if guest.nationality == 'Singapore' %}selected{% endif %}>🇸🇬 Singapore</option>
+                        <option value="Slovakia" {% if guest.nationality == 'Slovakia' %}selected{% endif %}>🇸🇰 Slovakia</option>
+                        <option value="Slovenia" {% if guest.nationality == 'Slovenia' %}selected{% endif %}>🇸🇮 Slovenia</option>
+                        <option value="Solomon Islands" {% if guest.nationality == 'Solomon Islands' %}selected{% endif %}>🇸🇧 Solomon Islands</option>
+                        <option value="Somalia" {% if guest.nationality == 'Somalia' %}selected{% endif %}>🇸🇴 Somalia</option>
+                        <option value="South Africa" {% if guest.nationality == 'South Africa' %}selected{% endif %}>🇿🇦 South Africa</option>
+                        <option value="South Korea" {% if guest.nationality == 'South Korea' %}selected{% endif %}>🇰🇷 South Korea</option>
+                        <option value="South Sudan" {% if guest.nationality == 'South Sudan' %}selected{% endif %}>🇸🇸 South Sudan</option>
+                        <option value="Spain" {% if guest.nationality == 'Spain' %}selected{% endif %}>🇪🇸 Spain</option>
+                        <option value="Sri Lanka" {% if guest.nationality == 'Sri Lanka' %}selected{% endif %}>🇱🇰 Sri Lanka</option>
+                        <option value="Sudan" {% if guest.nationality == 'Sudan' %}selected{% endif %}>🇸🇩 Sudan</option>
+                        <option value="Suriname" {% if guest.nationality == 'Suriname' %}selected{% endif %}>🇸🇷 Suriname</option>
+                        <option value="Sweden" {% if guest.nationality == 'Sweden' %}selected{% endif %}>🇸🇪 Sweden</option>
+                        <option value="Switzerland" {% if guest.nationality == 'Switzerland' %}selected{% endif %}>🇨🇭 Switzerland</option>
+                        <option value="Syria" {% if guest.nationality == 'Syria' %}selected{% endif %}>🇸🇾 Syria</option>
+                        <option value="Taiwan" {% if guest.nationality == 'Taiwan' %}selected{% endif %}>🇹🇼 Taiwan</option>
+                        <option value="Tajikistan" {% if guest.nationality == 'Tajikistan' %}selected{% endif %}>🇹🇯 Tajikistan</option>
+                        <option value="Tanzania" {% if guest.nationality == 'Tanzania' %}selected{% endif %}>🇹🇿 Tanzania</option>
+                        <option value="Thailand" {% if guest.nationality == 'Thailand' %}selected{% endif %}>🇹🇭 Thailand</option>
+                        <option value="Togo" {% if guest.nationality == 'Togo' %}selected{% endif %}>🇹🇬 Togo</option>
+                        <option value="Tonga" {% if guest.nationality == 'Tonga' %}selected{% endif %}>🇹🇴 Tonga</option>
+                        <option value="Trinidad and Tobago" {% if guest.nationality == 'Trinidad and Tobago' %}selected{% endif %}>🇹🇹 Trinidad and Tobago</option>
+                        <option value="Tunisia" {% if guest.nationality == 'Tunisia' %}selected{% endif %}>🇹🇳 Tunisia</option>
+                        <option value="Turkey" {% if guest.nationality == 'Turkey' %}selected{% endif %}>🇹🇷 Turkey</option>
+                        <option value="Turkmenistan" {% if guest.nationality == 'Turkmenistan' %}selected{% endif %}>🇹🇲 Turkmenistan</option>
+                        <option value="Tuvalu" {% if guest.nationality == 'Tuvalu' %}selected{% endif %}>🇹🇻 Tuvalu</option>
+                        <option value="Uganda" {% if guest.nationality == 'Uganda' %}selected{% endif %}>🇺🇬 Uganda</option>
+                        <option value="Ukraine" {% if guest.nationality == 'Ukraine' %}selected{% endif %}>🇺🇦 Ukraine</option>
+                        <option value="United Arab Emirates" {% if guest.nationality == 'United Arab Emirates' %}selected{% endif %}>🇦🇪 United Arab Emirates</option>
+                        <option value="United Kingdom" {% if guest.nationality == 'United Kingdom' %}selected{% endif %}>🇬🇧 United Kingdom</option>
+                        <option value="United States" {% if guest.nationality == 'United States' %}selected{% endif %}>🇺🇸 United States</option>
+                        <option value="Uruguay" {% if guest.nationality == 'Uruguay' %}selected{% endif %}>🇺🇾 Uruguay</option>
+                        <option value="Uzbekistan" {% if guest.nationality == 'Uzbekistan' %}selected{% endif %}>🇺🇿 Uzbekistan</option>
+                        <option value="Vanuatu" {% if guest.nationality == 'Vanuatu' %}selected{% endif %}>🇻🇺 Vanuatu</option>
+                        <option value="Vatican City" {% if guest.nationality == 'Vatican City' %}selected{% endif %}>🇻🇦 Vatican City</option>
+                        <option value="Venezuela" {% if guest.nationality == 'Venezuela' %}selected{% endif %}>🇻🇪 Venezuela</option>
+                        <option value="Vietnam" {% if guest.nationality == 'Vietnam' %}selected{% endif %}>🇻🇳 Vietnam</option>
+                        <option value="Yemen" {% if guest.nationality == 'Yemen' %}selected{% endif %}>🇾🇪 Yemen</option>
+                        <option value="Zambia" {% if guest.nationality == 'Zambia' %}selected{% endif %}>🇿🇲 Zambia</option>
+                        <option value="Zimbabwe" {% if guest.nationality == 'Zimbabwe' %}selected{% endif %}>🇿🇼 Zimbabwe</option>
+                    </select>
+                </div>
+
+                <!-- Passport Number -->
+                <div class="booking-only">
+                    <label for="passport_number" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Passport Number
+                    </label>
+                    <input type="text" name="passport_number" id="passport_number" value="{{ guest.passport_number|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter passport number">
+                </div>
+
+                <!-- VIP Status -->
+                <div class="booking-only">
+                    <label for="vip_status" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        VIP Status
+                    </label>
+                    <select name="vip_status" id="vip_status" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                        <option value="regular" {% if guest.vip_status == 'regular' %}selected{% endif %}>Regular</option>
+                        <option value="silver" {% if guest.vip_status == 'silver' %}selected{% endif %}>Silver</option>
+                        <option value="gold" {% if guest.vip_status == 'gold' %}selected{% endif %}>Gold</option>
+                        <option value="platinum" {% if guest.vip_status == 'platinum' %}selected{% endif %}>Platinum</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div>
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Contact Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                <!-- Email (booking only) -->
+                <div class="booking-only">
+                    <label for="email" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Email
+                    </label>
+                    <input type="email" name="email" id="email" value="{{ guest.email|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter email address">
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label for="phone" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Phone *
+                    </label>
+                    <input type="text" name="phone" id="phone" value="{{ guest.phone|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter phone number" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Identity Document Section (booking only) -->
+        <div class="booking-only" style="border-top: 1px solid var(--color-card-border); padding-top: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Identity Document
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <!-- ID Type -->
+                <div>
+                    <label for="id_type" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        ID Type
+                    </label>
+                    <select name="id_type" id="id_type" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                        <option value="">Select ID type</option>
+                        <option value="passport" {% if guest.id_type == 'passport' %}selected{% endif %}>Passport</option>
+                        <option value="national_id" {% if guest.id_type == 'national_id' %}selected{% endif %}>National ID</option>
+                        <option value="driving_license" {% if guest.id_type == 'driving_license' %}selected{% endif %}>Driving License</option>
+                        <option value="other" {% if guest.id_type == 'other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- ID Number -->
+                <div>
+                    <label for="id_number" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        ID Number
+                    </label>
+                    <input type="text" name="id_number" id="id_number" value="{{ guest.id_number|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter ID number">
+                </div>
+            </div>
+        </div>
+
+        <!-- Address and ID Picture Upload (booking only) -->
+        <div class="booking-only" style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-lg);">
+            <!-- Address -->
+            <div>
+                <label for="address" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Address
+                </label>
+                <textarea name="address" id="address" rows="3" 
+                          style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; resize: vertical;"
+                          placeholder="Enter address">{{ guest.address|default:'' }}</textarea>
+            </div>
+
+            <!-- ID Picture Upload -->
+            <div>
+                <label for="id_picture" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    ID Picture
+                </label>
+                <div style="border: 2px dashed var(--color-input-border); border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; background-color: var(--color-background-secondary); transition: all var(--transition-fast); height: 120px; display: flex; align-items: center; justify-content: center;" id="uploadArea">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: var(--spacing-xs);">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: var(--color-foreground-tertiary);"></i>
+                        <div style="color: var(--color-foreground); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            <label for="id_picture" style="cursor: pointer; color: var(--color-gold);">
+                                <span>Click to upload</span>
+                                <input id="id_picture" name="id_picture" type="file" style="display: none;" accept="image/*">
+                            </label>
+                            <span style="color: var(--color-foreground-secondary);"> or drag</span>
+                        </div>
+                        <p style="color: var(--color-foreground-tertiary); font-size: 0.625rem;">PNG, JPG, JPEG up to 10MB</p>
+                    </div>
+                </div>
+                
+                <!-- Preview Area -->
+                <div id="previewArea" style="margin-top: var(--spacing-sm); display: none;">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <img id="previewImage" src="" alt="Preview" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-card-border);">
+                        <div>
+                            <p style="color: var(--color-foreground); font-size: 0.75rem; font-weight: var(--font-weight-medium);" id="fileName"></p>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.625rem;" id="fileSize"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if guest.id_picture %}
+                <div style="margin-top: var(--spacing-sm);">
+                    <p style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">Current:</p>
+                    <img src="{{ guest.id_picture.url }}" alt="Current ID Picture" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-card-border);">
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Guest Source (replacing special requests) -->
+        <div class="booking-only">
+            <label for="guest_source" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                Guest Source (e.g., Travel Agency)
+            </label>
+            <input type="text" name="guest_source" id="guest_source" value="{{ guest.guest_source|default:'' }}"
+                   style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                   placeholder="Enter source">
+        </div>
+
+        <!-- Submit Buttons -->
+        <div style="display: flex; justify-content: end; gap: var(--spacing-md);">
+            <a href="{% url 'guest_list' %}" class="btn btn-outline">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if guest.pk %}Update{% else %}Create{% endif %} Guest
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Show/hide sections based on guest type
+const guestTypeSelect = document.getElementById('guest_type');
+function applyGuestTypeUI() {
+    const type = guestTypeSelect.value;
+    const bookingOnly = document.querySelectorAll('.booking-only');
+    const simpleOnly = document.querySelectorAll('.simple-only');
+    const showBooking = type === 'booking';
+    bookingOnly.forEach(el => el.style.display = showBooking ? '' : 'none');
+    simpleOnly.forEach(el => el.style.display = showBooking ? 'none' : '');
+    // Clear booking-only fields when switching to gym/swimming
+    if (!showBooking) {
+        const dob = document.getElementById('date_of_birth');
+        const nationality = document.getElementById('nationality');
+        const passport = document.getElementById('passport_number');
+        const vip = document.getElementById('vip_status');
+        if (dob) dob.value = '';
+        if (nationality) nationality.value = '';
+        if (passport) passport.value = '';
+        if (vip) vip.value = 'regular';
+    }
+}
+guestTypeSelect.addEventListener('change', applyGuestTypeUI);
+document.addEventListener('DOMContentLoaded', applyGuestTypeUI);
+// File upload functionality
+const fileInput = document.getElementById('id_picture');
+const uploadArea = document.getElementById('uploadArea');
+const previewArea = document.getElementById('previewArea');
+const previewImage = document.getElementById('previewImage');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+
+// Drag and drop functionality
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--color-gold)';
+    uploadArea.style.backgroundColor = 'var(--color-background-tertiary)';
+});
+
+uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--color-input-border)';
+    uploadArea.style.backgroundColor = 'var(--color-background-secondary)';
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect(files[0]);
+    }
+    uploadArea.style.borderColor = 'var(--color-input-border)';
+    uploadArea.style.backgroundColor = 'var(--color-background-secondary)';
+});
+
+// File input change
+fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB.');
+        return;
+    }
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        previewArea.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
+{% endblock %} 

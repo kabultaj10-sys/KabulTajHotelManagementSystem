@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Menu Item - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Delete Menu Item{% endblock %}
+{% block page_subtitle %}Restaurant Management{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card">
+        <div class="text-center">
+            <!-- Warning Icon -->
+            <div style="margin-bottom: var(--spacing-lg);">
+                <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--color-danger);"></i>
+            </div>
+            
+            <!-- Title and Description -->
+            <h2 style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Delete Menu Item
+            </h2>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem; margin-bottom: var(--spacing-lg); line-height: 1.6;">
+                Are you sure you want to delete this menu item? This action cannot be undone and will permanently remove the item from your menu.
+            </p>
+            
+            <!-- Item Details Card -->
+            <div style="background-color: var(--color-background-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h3 style="font-size: 1.125rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Item Details
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); text-align: left;">
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Name:</strong>
+                        </p>
+                        <p style="font-size: 1rem; color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                            {{ menu_item.name }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Category:</strong>
+                        </p>
+                        <p style="font-size: 1rem; color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                            {{ menu_item.category.name }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Price:</strong>
+                        </p>
+                        <p style="font-size: 1rem; color: var(--color-gold); font-weight: var(--font-weight-bold);">
+                            ${{ menu_item.price }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Cuisine Type:</strong>
+                        </p>
+                        <p style="font-size: 1rem; color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                            {{ menu_item.get_cuisine_type_display }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Preparation Time:</strong>
+                        </p>
+                        <p style="font-size: 1rem; color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                            {{ menu_item.preparation_time }} minutes
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                            <strong>Status:</strong>
+                        </p>
+                        <p style="font-size: 1rem; font-weight: var(--font-weight-medium); {% if menu_item.is_available %}color: var(--color-success);{% else %}color: var(--color-danger);{% endif %}">
+                            {% if menu_item.is_available %}Available{% else %}Unavailable{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Special Attributes -->
+                {% if menu_item.is_vegetarian or menu_item.is_gluten_free or menu_item.is_spicy %}
+                <div style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                    <p style="font-size: 0.875rem; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-xs);">
+                        <strong>Special Attributes:</strong>
+                    </p>
+                    <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-xs);">
+                        {% if menu_item.is_vegetarian %}
+                        <span style="padding: 0.25rem 0.5rem; background-color: var(--color-success-light); color: var(--color-success); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            Vegetarian
+                        </span>
+                        {% endif %}
+                        {% if menu_item.is_gluten_free %}
+                        <span style="padding: 0.25rem 0.5rem; background-color: var(--color-warning-light); color: var(--color-warning); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            Gluten Free
+                        </span>
+                        {% endif %}
+                        {% if menu_item.is_spicy %}
+                        <span style="padding: 0.25rem 0.5rem; background-color: var(--color-danger-light); color: var(--color-danger); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            Spicy
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Usage Statistics -->
+            {% if total_orders_count > 0 %}
+            <div style="background-color: var(--color-info-light); border: 1px solid var(--color-info); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                    <i class="fas fa-info-circle" style="color: var(--color-info); font-size: 1.25rem;"></i>
+                    <div style="text-align: left;">
+                        <p style="font-size: 0.875rem; color: var(--color-info); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                            Usage Information
+                        </p>
+                        <p style="font-size: 0.875rem; color: var(--color-info); line-height: 1.5;">
+                            This item has been used in {{ total_orders_count }} order(s) total. 
+                            {% if active_orders_count > 0 %}
+                            <strong>{{ active_orders_count }} of these orders are currently active.</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Warning Message -->
+            <div style="background-color: var(--color-danger-light); border: 1px solid var(--color-danger); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                    <i class="fas fa-exclamation-circle" style="color: var(--color-danger); font-size: 1.25rem;"></i>
+                    <div style="text-align: left;">
+                        <p style="font-size: 0.875rem; color: var(--color-danger); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                            Important Warning
+                        </p>
+                        <p style="font-size: 0.875rem; color: var(--color-danger); line-height: 1.5;">
+                            This action will permanently delete the menu item and cannot be undone. 
+                            {% if active_orders_count > 0 %}
+                            <strong>This item is currently being used in active orders and cannot be deleted.</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <form method="post" style="display: flex; gap: var(--spacing-md); justify-content: center;">
+                {% csrf_token %}
+                <a href="{% url 'restaurant:menu_list' %}" 
+                   class="btn btn-outline" 
+                   style="min-width: 120px;">
+                    <i class="fas fa-arrow-left" style="margin-right: var(--spacing-xs);"></i>
+                    Cancel
+                </a>
+                {% if active_orders_count == 0 %}
+                <button type="submit" 
+                        class="btn btn-danger" 
+                        style="min-width: 120px;"
+                        onclick="return confirmFinalDelete()">
+                    <i class="fas fa-trash" style="margin-right: var(--spacing-xs);"></i>
+                    Delete Item
+                </button>
+                {% else %}
+                <button type="button" 
+                        class="btn btn-danger" 
+                        style="min-width: 120px; opacity: 0.5; cursor: not-allowed;"
+                        disabled>
+                    <i class="fas fa-trash" style="margin-right: var(--spacing-xs);"></i>
+                    Cannot Delete
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmFinalDelete() {
+    return confirm('This is your final warning. Are you absolutely sure you want to delete this menu item? This action cannot be undone.');
+}
+</script>
+{% endblock %} 

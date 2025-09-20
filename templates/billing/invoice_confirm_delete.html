@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Invoice - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="card">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--color-danger); margin-bottom: var(--spacing-lg);"></i>
+            <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Delete Invoice
+            </h3>
+            <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                Are you sure you want to delete invoice "{{ invoice.invoice_number }}"?
+            </p>
+            
+            <div style="background-color: var(--color-background-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+                <p><strong>Invoice:</strong> {{ invoice.invoice_number }}</p>
+                <p><strong>Customer:</strong> {{ invoice.customer_name }}</p>
+                <p><strong>Amount:</strong> ${{ invoice.total_amount }}</p>
+                <p><strong>Status:</strong> {{ invoice.get_status_display }}</p>
+            </div>
+            
+            <p style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--spacing-lg);">
+                This action cannot be undone.
+            </p>
+            
+            <form method="post" style="display: flex; gap: var(--spacing-md);">
+                {% csrf_token %}
+                <a href="{% url 'invoice_list' %}" class="btn btn-outline" style="flex: 1;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger" style="flex: 1;">
+                    Delete Invoice
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

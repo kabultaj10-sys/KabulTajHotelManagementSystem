@@ -1,0 +1,665 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title|default:"Conference Room" }} - Kabul Taj Hotel{% endblock %}
+{% block page_title %}{{ title|default:"Conference Room" }}{% endblock %}
+{% block page_subtitle %}Conference Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>{{ title|default:"Conference Room" }}</h1>
+                <p>{% if room %}Edit conference room details{% else %}Create a new conference room{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <form method="post" class="form-section" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Room Name *</label>
+                        <input type="text" name="name" id="name" 
+                            value="{{ room.name|default:'' }}"
+                            class="input" placeholder="Enter room name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="capacity">Capacity *</label>
+                        <input type="number" name="capacity" id="capacity" 
+                            value="{{ room.capacity|default:'' }}"
+                            class="input" placeholder="Number of people" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="floor">Floor *</label>
+                        <input type="number" name="floor" id="floor" 
+                            value="{{ room.floor|default:'' }}"
+                            class="input" placeholder="Floor number" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <div class="custom-select-wrapper">
+                            <select name="status" id="status" class="custom-select-button">
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if room.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hourly_rate">Hourly Rate *</label>
+                        <div class="amount-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" name="hourly_rate" id="hourly_rate" 
+                                value="{{ room.hourly_rate|default:'' }}"
+                                class="input amount-input" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="daily_rate">Daily Rate *</label>
+                        <div class="amount-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" name="daily_rate" id="daily_rate" 
+                                value="{{ room.daily_rate|default:'' }}"
+                                class="input amount-input" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" rows="3" 
+                        class="input" placeholder="Enter room description">{{ room.description|default:'' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="amenities">Amenities</label>
+                    <textarea name="amenities" id="amenities" rows="3" 
+                        class="input" placeholder="Enter available amenities">{{ room.amenities|default:'' }}</textarea>
+                </div>
+
+                <!-- Room Images Section -->
+                <div class="form-section-header">
+                    <h3>Room Images</h3>
+                    <p>Upload up to 3 images of the conference room</p>
+                </div>
+
+                <!-- Current Images Display (for editing) -->
+                {% if room and room.image_1 or room.image_2 or room.image_3 %}
+                <div class="current-images">
+                    <h4>Current Images</h4>
+                    <div class="current-images-grid">
+                        {% if room.image_1 %}
+                        <div class="current-image-item">
+                            <img src="{{ room.image_1.url }}" alt="Current main image" class="current-image">
+                            <span class="image-label">Main Image</span>
+                        </div>
+                        {% endif %}
+                        {% if room.image_2 %}
+                        <div class="current-image-item">
+                            <img src="{{ room.image_2.url }}" alt="Current secondary image" class="current-image">
+                            <span class="image-label">Secondary Image</span>
+                        </div>
+                        {% endif %}
+                        {% if room.image_3 %}
+                        <div class="current-image-item">
+                            <img src="{{ room.image_3.url }}" alt="Current additional image" class="current-image">
+                            <span class="image-label">Additional Image</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="image-update-note">Upload new images below to replace the current ones</p>
+                </div>
+                {% endif %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="image_1">Main Image {% if not room %}*{% endif %}</label>
+                        <div class="image-upload-wrapper">
+                            <input type="file" name="image_1" id="image_1" 
+                                class="image-input" accept="image/*" {% if not room %}required{% endif %}>
+                            <div class="upload-placeholder">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7,10 12,15 17,10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span>Click to upload main image</span>
+                            </div>
+                        </div>
+                        <small class="form-help">This will be the primary image displayed for the room</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image_2">Secondary Image</label>
+                        <div class="image-upload-wrapper">
+                            <input type="file" name="image_2" id="image_2" 
+                                class="image-input" accept="image/*">
+                            <div class="upload-placeholder">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7,10 12,15 17,10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                <span>Click to upload secondary image</span>
+                            </div>
+                        </div>
+                        <small class="form-help">Optional additional view of the room</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="image_3">Additional Image</label>
+                    <div class="image-upload-wrapper">
+                        <input type="file" name="image_3" id="image_3" 
+                            class="image-input" accept="image/*">
+                        <div class="upload-placeholder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7,10 12,15 17,10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            <span>Click to upload additional image</span>
+                        </div>
+                    </div>
+                    <small class="form-help">Optional third image showing different aspects</small>
+                </div>
+
+                <!-- Image Removal Options (for editing) -->
+                {% if room and room.image_1 or room.image_2 or room.image_3 %}
+                <div class="form-group">
+                    <label>Remove Images</label>
+                    <div class="image-removal-options">
+                        {% if room.image_1 %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remove_image_1" value="1">
+                            <span class="checkmark"></span>
+                            Remove main image
+                        </label>
+                        {% endif %}
+                        {% if room.image_2 %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remove_image_2" value="1">
+                            <span class="checkmark"></span>
+                            Remove secondary image
+                        </label>
+                        {% endif %}
+                        {% if room.image_3 %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remove_image_3" value="1">
+                            <span class="checkmark"></span>
+                            Remove additional image
+                        </label>
+                        {% endif %}
+                    </div>
+                    <small class="form-help">Check the boxes above to remove existing images</small>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_active" id="is_active" 
+                            {% if room.is_active or not room %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        Active (Available for bookings)
+                    </label>
+                </div>
+
+                {% if form.errors %}
+                <div class="message-card message-error">
+                    <ul class="list-disc list-inside">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <a href="{% url 'conference:conference_room_list' %}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        {% if room %}Update Room{% else %}Create Room{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-group label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+}
+
+.input {
+    padding: var(--spacing-md);
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.input::placeholder {
+    color: var(--color-foreground-tertiary);
+}
+
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: var(--spacing-md);
+    color: var(--color-foreground-secondary);
+    font-weight: var(--font-weight-medium);
+    z-index: 1;
+}
+
+.amount-input {
+    padding-left: 2rem;
+}
+
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+    transition: all var(--transition-normal);
+}
+
+.custom-select-button:focus {
+    outline: none;
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.custom-select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--color-foreground-secondary);
+    pointer-events: none;
+}
+
+textarea.input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--color-primary);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-card-border);
+    margin-top: var(--spacing-lg);
+}
+
+.message-card {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.message-error {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+}
+
+.list-disc {
+    list-style-type: disc;
+}
+
+.list-inside {
+    list-style-position: inside;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+/* Enhanced focus states */
+.input:focus,
+.custom-select-button:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* Better hover states */
+.input:hover,
+.custom-select-button:hover {
+    border-color: var(--color-foreground-secondary);
+}
+
+/* Form Section Header */
+.form-section-header {
+    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-card-border);
+}
+
+.form-section-header h3 {
+    color: var(--color-foreground);
+    font-size: 1.125rem;
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.form-section-header p {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Image Upload Styling */
+.image-upload-wrapper {
+    position: relative;
+    border: 2px dashed var(--color-card-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    background-color: var(--color-card-background);
+}
+
+.image-upload-wrapper:hover {
+    border-color: var(--color-gold);
+    background-color: var(--color-card-hover);
+}
+
+.image-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-foreground-secondary);
+}
+
+.upload-placeholder svg {
+    color: var(--color-foreground-tertiary);
+}
+
+.upload-placeholder span {
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.form-help {
+    color: var(--color-foreground-tertiary);
+    font-size: 0.75rem;
+    margin-top: var(--spacing-xs);
+    font-style: italic;
+}
+
+/* Current Images Display */
+.current-images {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--color-card-hover);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-card-border);
+}
+
+.current-images h4 {
+    color: var(--color-foreground);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--spacing-md) 0;
+}
+
+.current-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.current-image-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.current-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-card-border);
+}
+
+.image-label {
+    font-size: 0.75rem;
+    color: var(--color-foreground-secondary);
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+}
+
+.image-update-note {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Image Removal Options */
+.image-removal-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background-color: var(--color-danger-light);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+}
+
+.image-removal-options .checkbox-label {
+    color: var(--color-danger);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Improved button styling */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-foreground);
+    border-color: var(--color-card-border);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-card-hover);
+    border-color: var(--color-foreground-secondary);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+    
+    .current-images-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image upload preview functionality
+    const imageInputs = document.querySelectorAll('.image-input');
+    
+    imageInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Show file name in the upload placeholder
+                const placeholder = this.parentElement.querySelector('.upload-placeholder span');
+                if (placeholder) {
+                    placeholder.textContent = file.name;
+                }
+                
+                // Add visual feedback
+                this.parentElement.style.borderColor = 'var(--color-success)';
+                this.parentElement.style.backgroundColor = 'var(--color-success-light)';
+                
+                // Reset after a few seconds
+                setTimeout(() => {
+                    this.parentElement.style.borderColor = '';
+                    this.parentElement.style.backgroundColor = '';
+                }, 3000);
+            }
+        });
+    });
+    
+    // Form validation for image requirements
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const isEditMode = {{ room|yesno:"true,false" }};
+        const image1Input = document.getElementById('image_1');
+        
+        if (!isEditMode && !image1Input.files.length) {
+            e.preventDefault();
+            alert('Please upload a main image for the conference room.');
+            image1Input.focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %} 

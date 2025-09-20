@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant & Food - Kabul Taj</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/themes.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Mobile sidebar overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Header -->
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 21h18"/>
+                            <path d="M5 21V7l8-4v18"/>
+                            <path d="M19 21V11l-6-4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <h1>Kabul Taj</h1>
+                        <p>Luxury Hotel</p>
+                    </div>
+                </div>
+                <button class="sidebar-close" id="sidebarClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18"/>
+                        <path d="M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <a href="hotel.html" class="nav-item" data-module="hotel">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 21h18"/>
+                        <path d="M5 21V7l8-4v18"/>
+                        <path d="M19 21V11l-6-4"/>
+                    </svg>
+                    <span>Hotel & Reservations</span>
+                </a>
+                <a href="restaurant.html" class="nav-item active" data-module="restaurant">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+                        <line x1="6" y1="17" x2="18" y2="17"/>
+                    </svg>
+                    <span>Restaurant & Food</span>
+                </a>
+                <a href="inventory.html" class="nav-item" data-module="inventory">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="M3.3 7l8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                    <span>Inventory & Freezer</span>
+                </a>
+                <a href="staff.html" class="nav-item" data-module="users">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Staff & Roles</span>
+                </a>
+                <a href="billing.html" class="nav-item" data-module="billing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="20" height="14" x="2" y="5" rx="2"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    <span>Orders & Billing</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Actions -->
+            <div class="sidebar-bottom">
+                <button class="bottom-action">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6"/>
+                        <path d="M21 12h-6m-6 0H3"/>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+                <button class="bottom-action">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </button>
+                    <div class="search-container">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                        <input type="text" class="search-input" placeholder="Search guests, rooms, orders...">
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="notification-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                        </svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <div class="user-avatar">AM</div>
+                        <div class="user-info">
+                            <div class="user-name">Admin Manager</div>
+                            <div class="user-role">Hotel Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Restaurant Module Content -->
+            <div class="module-container">
+                <div class="module" id="restaurant-module">
+                    <div class="module-header">
+                        <div class="module-title">
+                            <h1>Restaurant & Food Services</h1>
+                            <p>Manage dining reservations, orders, and menu</p>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-primary" id="newOrderBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14"/>
+                                    <path d="M12 5v14"/>
+                                </svg>
+                                + New Order
+                            </button>
+                            <button class="btn btn-outline" id="tableLayoutBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                                    <line x1="3" y1="9" x2="21" y2="9"/>
+                                    <line x1="9" y1="21" x2="9" y2="9"/>
+                                </svg>
+                                Table Layout
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon gold">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                                    <line x1="3" y1="9" x2="21" y2="9"/>
+                                    <line x1="9" y1="21" x2="9" y2="9"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">18</div>
+                                <div class="stat-label">Available Tables</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon gold">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+                                    <line x1="6" y1="17" x2="18" y2="17"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">7</div>
+                                <div class="stat-label">Active Orders</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">12</div>
+                                <div class="stat-label">min Avg Wait</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-number">85</div>
+                                <div class="stat-label">Covers Today</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restaurant Tabs -->
+                    <div class="tabs">
+                        <div class="tab-list">
+                            <button class="tab-trigger active" data-tab="reservations">Table Reservations</button>
+                            <button class="tab-trigger" data-tab="orders">Food Orders & KOT</button>
+                            <button class="tab-trigger" data-tab="menu">Menu Management</button>
+                            <button class="tab-trigger" data-tab="pos">POS System</button>
+                            <button class="tab-trigger" data-tab="kitchen">Kitchen Display</button>
+                        </div>
+
+                        <!-- Reservations Tab -->
+                        <div class="tab-content active" id="reservations-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Today's Reservations</h3>
+                                    <div class="card-actions">
+                                        <select class="select">
+                                            <option>All Status</option>
+                                            <option>Confirmed</option>
+                                            <option>Seated</option>
+                                            <option>Completed</option>
+                                        </select>
+                                        <button class="btn btn-primary" id="newReservationBtn">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M5 12h14"/>
+                                                <path d="M12 5v14"/>
+                                            </svg>
+                                            + New Reservation
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="table-container">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Table</th>
+                                                    <th>Guest</th>
+                                                    <th>Time</th>
+                                                    <th>Party Size</th>
+                                                    <th>Room</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>T-01</td>
+                                                    <td>John Smith</td>
+                                                    <td>19:00</td>
+                                                    <td>4 guests</td>
+                                                    <td>301</td>
+                                                    <td><span class="badge confirmed">Confirmed</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">View</button>
+                                                        <button class="btn-ghost">Edit</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>T-05</td>
+                                                    <td>Emma Wilson</td>
+                                                    <td>20:30</td>
+                                                    <td>2 guests</td>
+                                                    <td>Walk-in</td>
+                                                    <td><span class="badge seated">Seated</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">View</button>
+                                                        <button class="btn-ghost">Edit</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>T-12</td>
+                                                    <td>Michael Chen</td>
+                                                    <td>18:30</td>
+                                                    <td>6 guests</td>
+                                                    <td>401</td>
+                                                    <td><span class="badge completed">Completed</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">View</button>
+                                                        <button class="btn-ghost">Edit</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orders Tab -->
+                        <div class="tab-content" id="orders-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Active Kitchen Orders</h3>
+                                    <div class="card-actions">
+                                        <select class="select">
+                                            <option>All Orders</option>
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Ready</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="table-container">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order #</th>
+                                                    <th>Table</th>
+                                                    <th>Items</th>
+                                                    <th>Time</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>KOT-001</td>
+                                                    <td>Table 3</td>
+                                                    <td>2x Pasta, 1x Salad</td>
+                                                    <td>19:15</td>
+                                                    <td><span class="badge pending">Pending</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">View</button>
+                                                        <button class="btn-ghost">Start</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>KOT-002</td>
+                                                    <td>Table 7</td>
+                                                    <td>1x Steak, 2x Wine</td>
+                                                    <td>19:20</td>
+                                                    <td><span class="badge confirmed">In Progress</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">View</button>
+                                                        <button class="btn-ghost">Ready</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Menu Tab -->
+                        <div class="tab-content" id="menu-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Menu Categories</h3>
+                                    <div class="card-actions">
+                                        <button class="btn btn-primary" id="addMenuItemBtn">+ Add Item</button>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="menu-categories">
+                                        <div class="menu-category">
+                                            <h4>Breakfast</h4>
+                                            <div class="menu-stats">
+                                                <div class="stat-row">
+                                                    <span>Items:</span>
+                                                    <span class="available">12 items</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span>Avg Price:</span>
+                                                    <span class="rate">$8</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="menu-category">
+                                            <h4>Lunch</h4>
+                                            <div class="menu-stats">
+                                                <div class="stat-row">
+                                                    <span>Items:</span>
+                                                    <span class="available">18 items</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span>Avg Price:</span>
+                                                    <span class="rate">$15</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="menu-category">
+                                            <h4>Dinner</h4>
+                                            <div class="menu-stats">
+                                                <div class="stat-row">
+                                                    <span>Items:</span>
+                                                    <span class="available">25 items</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span>Avg Price:</span>
+                                                    <span class="rate">$22</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="menu-category">
+                                            <h4>Drinks</h4>
+                                            <div class="menu-stats">
+                                                <div class="stat-row">
+                                                    <span>Items:</span>
+                                                    <span class="available">15 items</span>
+                                                </div>
+                                                <div class="stat-row">
+                                                    <span>Avg Price:</span>
+                                                    <span class="rate">$6</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Menu Items Table -->
+                                    <div class="table-container" style="margin-top: var(--spacing-lg);">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item Name</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Grilled Salmon</td>
+                                                    <td>Dinner</td>
+                                                    <td>$28.00</td>
+                                                    <td><span class="badge confirmed">Available</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">Edit</button>
+                                                        <button class="btn-ghost">Toggle</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Caesar Salad</td>
+                                                    <td>Lunch</td>
+                                                    <td>$12.00</td>
+                                                    <td><span class="badge confirmed">Available</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">Edit</button>
+                                                        <button class="btn-ghost">Toggle</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Pancakes</td>
+                                                    <td>Breakfast</td>
+                                                    <td>$8.50</td>
+                                                    <td><span class="badge pending">Out of Stock</span></td>
+                                                    <td>
+                                                        <button class="btn-ghost">Edit</button>
+                                                        <button class="btn-ghost">Toggle</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- POS Tab -->
+                        <div class="tab-content" id="pos-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Point of Sale System</h3>
+                                    <div class="card-actions">
+                                        <button class="btn btn-outline">Print Receipt</button>
+                                        <button class="btn btn-primary">Process Payment</button>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="pos-container">
+                                        <div class="pos-left">
+                                            <div class="pos-categories">
+                                                <button class="pos-category active">Breakfast</button>
+                                                <button class="pos-category">Lunch</button>
+                                                <button class="pos-category">Dinner</button>
+                                                <button class="pos-category">Drinks</button>
+                                                <button class="pos-category">Desserts</button>
+                                            </div>
+                                            <div class="pos-items">
+                                                <div class="pos-item">
+                                                    <div class="pos-item-info">
+                                                        <h4>Grilled Salmon</h4>
+                                                        <p>$28.00</p>
+                                                    </div>
+                                                    <button class="pos-add-btn">+</button>
+                                                </div>
+                                                <div class="pos-item">
+                                                    <div class="pos-item-info">
+                                                        <h4>Caesar Salad</h4>
+                                                        <p>$12.00</p>
+                                                    </div>
+                                                    <button class="pos-add-btn">+</button>
+                                                </div>
+                                                <div class="pos-item">
+                                                    <div class="pos-item-info">
+                                                        <h4>Pasta Carbonara</h4>
+                                                        <p>$16.00</p>
+                                                    </div>
+                                                    <button class="pos-add-btn">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pos-right">
+                                            <div class="pos-order">
+                                                <h3>Current Order</h3>
+                                                <div class="pos-order-items">
+                                                    <div class="pos-order-item">
+                                                        <span>Grilled Salmon</span>
+                                                        <span>1x $28.00</span>
+                                                        <button class="pos-remove-btn">×</button>
+                                                    </div>
+                                                    <div class="pos-order-item">
+                                                        <span>Caesar Salad</span>
+                                                        <span>2x $24.00</span>
+                                                        <button class="pos-remove-btn">×</button>
+                                                    </div>
+                                                </div>
+                                                <div class="pos-total">
+                                                    <div class="pos-subtotal">
+                                                        <span>Subtotal:</span>
+                                                        <span>$52.00</span>
+                                                    </div>
+                                                    <div class="pos-tax">
+                                                        <span>Tax (10%):</span>
+                                                        <span>$5.20</span>
+                                                    </div>
+                                                    <div class="pos-grand-total">
+                                                        <span>Total:</span>
+                                                        <span>$57.20</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kitchen Display Tab -->
+                        <div class="tab-content" id="kitchen-tab">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Kitchen Display System</h3>
+                                    <div class="card-actions">
+                                        <button class="btn btn-outline">Refresh</button>
+                                        <button class="btn btn-primary">Mark All Ready</button>
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kitchen-orders">
+                                        <div class="kitchen-order">
+                                            <div class="kitchen-order-header">
+                                                <h4>Order #KOT-001</h4>
+                                                <span class="kitchen-time">19:15</span>
+                                                <span class="kitchen-status pending">Pending</span>
+                                            </div>
+                                            <div class="kitchen-order-items">
+                                                <div class="kitchen-item">
+                                                    <span>2x Pasta Carbonara</span>
+                                                    <button class="kitchen-ready-btn">Ready</button>
+                                                </div>
+                                                <div class="kitchen-item">
+                                                    <span>1x Caesar Salad</span>
+                                                    <button class="kitchen-ready-btn">Ready</button>
+                                                </div>
+                                            </div>
+                                            <div class="kitchen-order-footer">
+                                                <span>Table 3 - John Smith</span>
+                                                <button class="kitchen-complete-btn">Complete Order</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="kitchen-order">
+                                            <div class="kitchen-order-header">
+                                                <h4>Order #KOT-002</h4>
+                                                <span class="kitchen-time">19:20</span>
+                                                <span class="kitchen-status in-progress">In Progress</span>
+                                            </div>
+                                            <div class="kitchen-order-items">
+                                                <div class="kitchen-item">
+                                                    <span>1x Grilled Salmon</span>
+                                                    <button class="kitchen-ready-btn">Ready</button>
+                                                </div>
+                                                <div class="kitchen-item">
+                                                    <span>2x Red Wine</span>
+                                                    <button class="kitchen-ready-btn">Ready</button>
+                                                </div>
+                                            </div>
+                                            <div class="kitchen-order-footer">
+                                                <span>Table 7 - Emma Wilson</span>
+                                                <button class="kitchen-complete-btn">Complete Order</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Order Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Food Order</h3>
+                <button class="modal-close" id="closeOrderModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form class="order-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Guest Name</label>
+                            <input type="text" class="input" placeholder="Guest name">
+                        </div>
+                        <div class="form-group">
+                            <label>Table Number</label>
+                            <select class="select">
+                                <option>Select Table</option>
+                                <option>Table 1</option>
+                                <option>Table 2</option>
+                                <option>Table 3</option>
+                                <option>Table 4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Order Items</label>
+                        <div class="order-items">
+                            <div class="order-item">
+                                <select class="select">
+                                    <option>Select Item</option>
+                                    <option>Grilled Salmon</option>
+                                    <option>Caesar Salad</option>
+                                    <option>Pasta Carbonara</option>
+                                </select>
+                                <input type="number" class="input" placeholder="Qty" min="1" value="1">
+                                <button class="btn-ghost">Remove</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" type="button">+ Add Item</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Instructions</label>
+                        <textarea class="input" rows="3" placeholder="Any special requests..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelOrder">Cancel</button>
+                <button class="btn btn-primary" id="confirmOrder">Place Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/errorHandler.js"></script>
+    <script src="scripts/dataManager.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script src="scripts/components.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html> 

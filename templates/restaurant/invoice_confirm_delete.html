@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Invoice {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="delete-confirmation-container">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <div class="warning-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <h1 class="confirmation-title">Delete Invoice</h1>
+            <p class="confirmation-message">
+                Are you sure you want to delete invoice <strong>{{ invoice.invoice_number }}</strong>?
+            </p>
+        </div>
+
+        <div class="invoice-details">
+            <h2>Invoice Details</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Customer:</span>
+                    <span class="detail-value">{{ invoice.customer_name }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Order #:</span>
+                    <span class="detail-value">{{ invoice.order.order_number }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Amount:</span>
+                    <span class="detail-value">${{ invoice.total_amount|floatformat:2 }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">{{ invoice.get_status_display }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Created:</span>
+                    <span class="detail-value">{{ invoice.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-message">
+            <div class="warning-content">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <div>
+                    <h3>This action cannot be undone</h3>
+                    <p>Deleting this invoice will permanently remove it from the system. All associated data will be lost.</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="confirmation-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3,6 5,6 21,6"/>
+                        <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                    </svg>
+                    Delete Invoice
+                </button>
+                <a href="{% url 'restaurant:invoice_detail' invoice.pk %}" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-confirmation-container {
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .confirmation-card {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        width: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .warning-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        background: var(--warning-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .confirmation-title {
+        margin: 0 0 1rem 0;
+        color: var(--text-primary);
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+
+    .confirmation-message {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .confirmation-message strong {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .invoice-details {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--surface-secondary);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .invoice-details h2 {
+        margin: 0 0 1rem 0;
+        color: var(--text-primary);
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .detail-value {
+        color: var(--text-primary);
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .warning-message {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: var(--warning-color);
+        border-radius: 8px;
+        color: white;
+    }
+
+    .warning-content {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .warning-content svg {
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+    }
+
+    .warning-content h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .warning-content p {
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        opacity: 0.9;
+    }
+
+    .confirmation-form {
+        margin-top: 2rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+        border: 1px solid var(--danger-color);
+    }
+
+    .btn-danger:hover {
+        background: var(--danger-color-dark);
+        border-color: var(--danger-color-dark);
+    }
+
+    @media (max-width: 768px) {
+        .delete-confirmation-container {
+            padding: 1rem;
+        }
+
+        .confirmation-card {
+            padding: 1.5rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

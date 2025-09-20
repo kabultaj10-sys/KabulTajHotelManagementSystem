@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+{% block title %}Conference Booking {{ booking.booking_number }} - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Conference Booking Details{% endblock %}
+{% block page_subtitle %}Conference Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Conference Booking {{ booking.booking_number }}</h1>
+                <p>Booking details and information</p>
+            </div>
+            <div class="module-actions">
+                <a href="{% url 'conference:booking_edit' booking.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit Booking
+                </a>
+                {% if booking.status != 'completed' and booking.status != 'cancelled' %}
+                <form action="{% url 'conference:booking_mark_completed' booking.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i>
+                        Mark as Completed
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{% url 'conference:conference_booking_list' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Booking Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Booking Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Booking Number:</label>
+                        <span>{{ booking.booking_number }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Event Title:</label>
+                        <span>{{ booking.event_title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span class="status-badge status-{{ booking.status }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Payment Status:</label>
+                        <span class="status-badge status-{{ booking.payment_status }}">
+                            {{ booking.get_payment_status_display }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Created By:</label>
+                        <span>{{ booking.created_by.get_full_name|default:booking.created_by.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Created At:</label>
+                        <span>{{ booking.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Client Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Client Name:</label>
+                        <span>{{ booking.client_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span>{{ booking.client_email|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone:</label>
+                        <span>{{ booking.client_phone|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Company:</label>
+                        <span>{{ booking.client_company|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Details -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Event Details</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Room:</label>
+                        <span>{{ booking.room.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Start Date & Time:</label>
+                        <span>{{ booking.start_datetime|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>End Date & Time:</label>
+                        <span>{{ booking.end_datetime|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Duration:</label>
+                        <span>{{ booking.duration_hours }} hours</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Attendees:</label>
+                        <span>{{ booking.attendees_count }} people</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Event Type:</label>
+                        <span>{{ booking.get_event_type_display|default:"Not specified" }}</span>
+                    </div>
+                </div>
+                
+                {% if booking.event_description %}
+                <div style="margin-top: var(--spacing-lg);">
+                    <label style="font-weight: var(--font-weight-medium); color: var(--color-foreground-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-xs); display: block;">
+                        Event Description:
+                    </label>
+                    <p style="color: var(--color-foreground); line-height: 1.6;">
+                        {{ booking.event_description|linebreaks }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Financial Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="financial-grid">
+                    <div class="financial-item">
+                        <label>Room Rate:</label>
+                        <span>${{ booking.room_rate|default:"0.00" }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Equipment Cost:</label>
+                        <span>${{ booking.equipment_cost|default:"0.00" }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Additional Services:</label>
+                        <span>${{ booking.additional_services_cost|default:"0.00" }}</span>
+                    </div>
+                    <div class="financial-item total">
+                        <label>Total Amount:</label>
+                        <span>${{ booking.total_amount }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Paid Amount:</label>
+                        <span>${{ booking.paid_amount }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Remaining Amount:</label>
+                        <span>${{ booking.remaining_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Requirements -->
+        {% if booking.special_requirements %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Special Requirements</h3>
+            </div>
+            <div class="card-content">
+                <p>{{ booking.special_requirements|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Equipment -->
+        {% if booking.equipment.exists %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Requested Equipment</h3>
+            </div>
+            <div class="card-content">
+                <div class="equipment-grid">
+                    {% for equipment in booking.equipment.all %}
+                    <div class="equipment-item">
+                        <span class="equipment-name">{{ equipment.name }}</span>
+                        <span class="equipment-status status-{{ equipment.is_available|yesno:'available,unavailable' }}">
+                            {{ equipment.is_available|yesno:'Available,Unavailable' }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.module-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.info-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.info-item span {
+    color: var(--color-foreground);
+    font-size: 1rem;
+}
+
+.financial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.financial-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background-color: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+}
+
+.financial-item.total {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+}
+
+.financial-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.financial-item span {
+    color: var(--color-foreground);
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.financial-item.total span {
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.status-confirmed {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-cancelled {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-completed {
+    background-color: var(--color-info-light);
+    color: var(--color-info);
+}
+
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.equipment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+}
+
+.equipment-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+}
+
+.equipment-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.status-available {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-unavailable {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+    .module-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .info-grid,
+    .financial-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %} 

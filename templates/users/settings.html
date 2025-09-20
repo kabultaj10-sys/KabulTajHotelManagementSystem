@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Settings - Kabul Taj{% endblock %}
+{% block content %}
+<div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--spacing-md);">
+        <h2>Settings</h2>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--spacing-md);">
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div>
+                    <label style="display:block;margin-bottom:6px;">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="message-error" style="margin-top:6px;">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: var(--spacing-lg); display:flex; gap: var(--spacing-md);">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

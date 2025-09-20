@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}Billing Dashboard - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Billing Dashboard{% endblock %}
+{% block page_subtitle %}Financial Overview & Revenue Tracking{% endblock %}
+
+{% block content %}
+<div class="billing-dashboard">
+    <!-- Header Section -->
+    <div class="billing-header">
+        <div class="billing-header-content">
+            <div class="billing-title">
+                <h1>Financial Overview </h1>
+                <p>Track revenue, invoices, and payment activities</p>
+            </div>
+            <div class="billing-actions">
+                <div class="time-filter-container">
+                    <label for="timeFilter">Time Period:</label>
+                    <select id="timeFilter" class="time-filter">
+                        <option value="today" {% if time_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if time_filter == 'week' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="month" {% if time_filter == 'month' %}selected{% endif %}>Last 30 Days</option>
+                        <option value="quarter" {% if time_filter == 'quarter' %}selected{% endif %}>Last 90 Days</option>
+                        <option value="year" {% if time_filter == 'year' %}selected{% endif %}>Last Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <a href="{% url 'invoice_create' %}" class="btn btn-primary btn-create">
+                    <i class="fas fa-plus"></i>
+                    Create Invoice
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Date Range -->
+    <div id="customDateRange" class="custom-date-range" style="display: none;">
+        <div class="custom-range-content">
+            <h3>Custom Date Range</h3>
+            <p>Select specific start and end dates for detailed analysis</p>
+            <form method="get" class="custom-range-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-gold">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Revenue</h3>
+                <div class="stat-number">${{ revenue_data.total_revenue|floatformat:2 }}</div>
+                <div class="stat-change stat-change-positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +{{ revenue_data.growth_rate }}% vs last period
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-success">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Invoices</h3>
+                <div class="stat-number">{{ revenue_data.invoice_count }}</div>
+                <div class="stat-subtitle">{{ revenue_data.paid_invoices }} paid, {{ revenue_data.pending_invoices }} pending</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-info">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Average Invoice</h3>
+                <div class="stat-number">${{ revenue_data.average_invoice|floatformat:2 }}</div>
+                <div class="stat-subtitle">Per transaction</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-warning">
+                <i class="fas fa-trending-up"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Growth Rate</h3>
+                <div class="stat-number">{{ revenue_data.growth_rate }}%</div>
+                <div class="stat-change stat-change-positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +{{ revenue_data.growth_rate }}% vs last period
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Revenue Breakdown</h3>
+            </div>
+            <div class="chart-content">
+                <div class="revenue-breakdown">
+                    {% for service in service_breakdown %}
+                    <div class="breakdown-item">
+                        <div class="breakdown-info">
+                            <span class="service-name">{{ service.service }}</span>
+                            <span class="service-amount">${{ service.amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="bar-fill" style="width: {{ service.percentage }}%"></div>
+                        </div>
+                        <span class="percentage">{{ service.percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Revenue Trend</h3>
+            </div>
+            <div class="chart-content">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="transactions-section">
+        <div class="transactions-header">
+            <div class="transactions-title">
+                <h3>Recent Transactions</h3>
+                <p>Latest invoice and payment activities</p>
+            </div>
+            <a href="{% url 'invoice_list' %}" class="btn btn-outline">
+                View All
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="transactions-table-container">
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>
+                            <div class="invoice-id">#{{ transaction.id }}</div>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">{{ transaction.customer }}</div>
+                                {% if transaction.customer_email %}
+                                <div class="customer-email">{{ transaction.customer_email }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="service-name">{{ transaction.service }}</div>
+                        </td>
+                        <td>
+                            <div class="amount">${{ transaction.amount|floatformat:2 }}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {{ transaction.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="date">{{ transaction.date }}</div>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="#" class="btn-icon" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <h3>No transactions found</h3>
+                                <p>Get started by recording your first transaction.</p>
+                                <a href="{% url 'invoice_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Create Invoice
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Time filter functionality
+document.getElementById('timeFilter').addEventListener('change', function() {
+    const value = this.value;
+    const customRange = document.getElementById('customDateRange');
+    
+    if (value === 'custom') {
+        customRange.style.display = 'block';
+    } else {
+        customRange.style.display = 'none';
+        // Redirect with new filter
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('time_filter', value);
+        window.location.href = currentUrl.toString();
+    }
+});
+
+// Revenue Chart
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const revenueData = {{ revenue_trend|safe }};
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(item => item.month),
+        datasets: [{
+            label: 'Revenue ($)',
+            data: revenueData.map(item => item.revenue),
+            borderColor: '#D4AF37',
+            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#D4AF37',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    color: '#888888',
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    color: '#888888'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

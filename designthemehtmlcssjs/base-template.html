@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kabul Taj Hotel Management System - Luxury Hotel Management">
+    <meta name="author" content="Kabul Taj Hotel">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <title>Kabul Taj - Hotel Management System</title>
+    
+    <!-- External CSS Libraries -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/themes.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <!-- Sidebar Header -->
+            <header class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 21h18"/>
+                            <path d="M5 21V7l8-4v18"/>
+                            <path d="M19 21V11l-6-4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <h1>Kabul Taj</h1>
+                        <p>Luxury Hotel</p>
+                    </div>
+                </div>
+                <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M18 6L6 18"/>
+                        <path d="M6 6l12 12"/>
+                    </svg>
+                </button>
+            </header>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <a href="hotel.html" class="nav-item" data-module="hotel" aria-label="Hotel and Reservations">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M3 21h18"/>
+                        <path d="M5 21V7l8-4v18"/>
+                        <path d="M19 21V11l-6-4"/>
+                    </svg>
+                    <span>Hotel & Reservations</span>
+                </a>
+                <a href="restaurant.html" class="nav-item" data-module="restaurant" aria-label="Restaurant and Food">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+                        <line x1="6" y1="17" x2="18" y2="17"/>
+                    </svg>
+                    <span>Restaurant & Food</span>
+                </a>
+                <a href="inventory.html" class="nav-item" data-module="inventory" aria-label="Inventory and Freezer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="M3.3 7l8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                    <span>Inventory & Freezer</span>
+                </a>
+                <a href="staff.html" class="nav-item" data-module="users" aria-label="Staff and Roles">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Staff & Roles</span>
+                </a>
+                <a href="billing.html" class="nav-item" data-module="billing" aria-label="Orders and Billing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect width="20" height="14" x="2" y="5" rx="2"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    <span>Orders & Billing</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Footer Actions -->
+            <footer class="sidebar-bottom">
+                <button class="bottom-action" aria-label="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6"/>
+                        <path d="M21 12h-6m-6 0H3"/>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+                <button class="bottom-action" aria-label="Sign out">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16,17 21,12 16,7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </button>
+            </footer>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" role="main">
+            <!-- Topbar Header -->
+            <header class="topbar" role="banner">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar menu">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </button>
+                    <div class="search-container">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                        </svg>
+                        <input type="text" class="search-input" placeholder="Search guests, rooms, orders..." aria-label="Search">
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="notification-btn" aria-label="Notifications">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                        </svg>
+                        <span class="notification-badge" aria-label="3 notifications">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <div class="user-avatar" aria-label="Admin Manager avatar">AM</div>
+                        <div class="user-info">
+                            <div class="user-name">Admin Manager</div>
+                            <div class="user-role">Hotel Manager</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content Container -->
+            <div class="module-container">
+                <!-- Content will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/errorHandler.js"></script>
+    <script src="scripts/dataManager.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script src="scripts/components.js"></script>
+    <script src="scripts/main.js"></script>
+    
+    <!-- Active Navigation Script -->
+    <script>
+        // ===== ACTIVE NAVIGATION HIGHLIGHTING =====
+        document.addEventListener('DOMContentLoaded', function() {
+            function setActiveNavigation() {
+                const currentPath = window.location.pathname;
+                const navItems = document.querySelectorAll('.nav-item');
+                
+                // Remove active class from all nav items
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Find and highlight the current page based on filename
+                const currentPage = window.location.pathname.split('/').pop();
+                
+                navItems.forEach(item => {
+                    const href = item.getAttribute('href');
+                    if (href && href.includes(currentPage)) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Special handling for index page
+                if (currentPage === '' || currentPage === 'index.html') {
+                    const hotelLink = document.querySelector('a[href="hotel.html"]');
+                    if (hotelLink) {
+                        hotelLink.classList.add('active');
+                    }
+                }
+            }
+
+            // Set active navigation on page load
+            setActiveNavigation();
+        });
+    </script>
+    <style>
+        .nav-item.active {
+            background-color: var(--color-primary) !important;
+            color: var(--color-primary-foreground) !important;
+        }
+    </style>
+</body>
+</html> 

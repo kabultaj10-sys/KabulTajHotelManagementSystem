@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+
+{% block title %}Process Payment - {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="payment-header">
+        <h1>Process Payment</h1>
+        <p class="subtitle">Invoice #{{ invoice.invoice_number }} - {{ invoice.customer_name }}</p>
+    </div>
+
+    <div class="invoice-summary">
+        <div class="summary-card">
+            <h3>Invoice Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="label">Total Amount:</span>
+                    <span class="value">${{ invoice.total_amount }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Paid Amount:</span>
+                    <span class="value">${{ invoice.paid_amount }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Remaining Balance:</span>
+                    <span class="value">${{ invoice.remaining_amount }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Status:</span>
+                    <span class="value status-{{ invoice.status }}">{{ invoice.get_status_display }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="payment-form">
+        {% csrf_token %}
+        <div class="form-section">
+            <h3>Payment Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="payment_amount">Payment Amount *</label>
+                    <div class="amount-input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" name="payment_amount" id="payment_amount" 
+                            class="input amount-input" placeholder="0.00" step="0.01" 
+                            max="{{ invoice.remaining_amount }}" required>
+                    </div>
+                    <small class="help-text">Maximum: ${{ invoice.remaining_amount }}</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_method">Payment Method *</label>
+                    <div class="custom-select-wrapper">
+                        <select name="payment_method" id="payment_method" class="custom-select-button" required>
+                            <option value="">Select payment method</option>
+                            <option value="cash">Cash</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="debit_card">Debit Card</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="online">Online Payment</option>
+                            <option value="check">Check</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if invoice.invoice_type == 'booking_guest' and invoice.booking %}
+        <div class="warning-section">
+            <div class="warning-card">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="warning-content">
+                    <h4>Important Notice</h4>
+                    <p>This is a <strong>Booking Guest</strong> invoice. When payment is completed:</p>
+                    <ul>
+                        <li><strong>Full Payment:</strong> Guest and booking will be deleted from the system</li>
+                        <li><strong>Partial Payment:</strong> Guest and booking will be kept for future payments</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <a href="{% url 'invoice_detail' invoice.pk %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" onclick="return confirmPayment()">
+                <i class="fas fa-credit-card"></i> Process Payment
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+/* CSS Variables */
+:root {
+    --primary-color: #D4AF37;
+    --primary-hover: #FFD700;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #2a2a2a;
+    --text-primary: #f5f5f5;
+    --text-secondary: #888888;
+    --text-tertiary: #666666;
+    --border-color: #333333;
+    --shadow-light: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-medium: 0 4px 6px rgba(0,0,0,0.15);
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* Container */
+.payment-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* Header */
+.payment-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.payment-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+/* Invoice Summary */
+.invoice-summary {
+    margin-bottom: var(--spacing-xl);
+}
+
+.summary-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-light);
+}
+
+.summary-card h3 {
+    margin: 0 0 var(--spacing-lg) 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item .label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.summary-item .value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+/* Status Badges */
+.status-draft {
+    color: var(--text-secondary);
+}
+
+.status-sent {
+    color: var(--info-color);
+}
+
+.status-paid {
+    color: var(--success-color);
+}
+
+.status-overdue {
+    color: var(--danger-color);
+}
+
+.status-cancelled {
+    color: var(--text-tertiary);
+}
+
+/* Payment Form */
+.payment-form {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-light);
+}
+
+.form-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-section h3 {
+    margin: 0 0 var(--spacing-lg) 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-group label {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: var(--spacing-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    z-index: 1;
+}
+
+.amount-input {
+    padding-left: 2rem;
+}
+
+.input {
+    padding: var(--spacing-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.2s ease;
+}
+
+.custom-select-button:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.custom-select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-secondary);
+    pointer-events: none;
+}
+
+.help-text {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    margin-top: var(--spacing-xs);
+}
+
+/* Warning Section */
+.warning-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.warning-card {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.warning-icon {
+    color: var(--danger-color);
+    font-size: 1.5rem;
+    margin-top: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.warning-content h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--danger-color);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.warning-content p {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.warning-content ul {
+    margin: 0;
+    padding-left: var(--spacing-lg);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.warning-content li {
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Buttons */
+.btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--bg-primary);
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .payment-container {
+        padding: var(--spacing-md);
+    }
+    
+    .payment-header h1 {
+        font-size: 2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .warning-card {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+}
+</style>
+
+<script>
+function confirmPayment() {
+    const paymentAmount = parseFloat(document.getElementById('payment_amount').value);
+    const remainingAmount = {{ invoice.remaining_amount }};
+    const isBookingGuest = {% if invoice.invoice_type == 'booking_guest' %}true{% else %}false{% endif %};
+    
+    let message = `Are you sure you want to process a payment of $${paymentAmount.toFixed(2)}?`;
+    
+    if (isBookingGuest) {
+        if (paymentAmount >= remainingAmount) {
+            message += '\n\n⚠️ WARNING: This is a FULL PAYMENT for a Booking Guest invoice.\nThe guest and booking will be DELETED from the system!';
+        } else {
+            message += '\n\nThis is a partial payment. The guest and booking will be kept for future payments.';
+        }
+    }
+    
+    return confirm(message);
+}
+
+// Set max payment amount
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentInput = document.getElementById('payment_amount');
+    const remainingAmount = {{ invoice.remaining_amount }};
+    
+    paymentInput.addEventListener('input', function() {
+        if (parseFloat(this.value) > remainingAmount) {
+            this.value = remainingAmount;
+        }
+    });
+});
+</script>
+{% endblock %}

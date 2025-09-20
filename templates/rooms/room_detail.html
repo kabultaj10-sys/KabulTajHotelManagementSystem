@@ -1,0 +1,660 @@
+{% extends 'base.html' %}
+
+{% block title %}Room {{ room.room_number }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Enhanced Header -->
+<div class="hotel-header">
+    <div class="header-main">
+        <div class="header-content">
+            <h1 class="header-title">Room {{ room.room_number }}</h1>
+            <p class="header-subtitle">{{ room.room_type.name }} • Floor {{ room.get_floor_display }}</p>
+        </div>
+
+        <div class="header-actions">
+            <a href="{% url 'room_edit' room.pk %}" class="btn btn-outline">
+                <i class="fas fa-edit"></i>
+                <span>Edit Room</span>
+            </a>
+            <a href="{% url 'room_maintenance' room.pk %}" class="btn btn-warning">
+                <i class="fas fa-tools"></i>
+                <span>Maintenance</span>
+            </a>
+            <a href="{% url 'room_list' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Rooms</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="nav-tabs-container">
+        <div class="nav-tabs">
+            <a href="#overview" class="nav-tab active" data-tab="overview">
+                <i class="fas fa-info-circle"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#bookings" class="nav-tab" data-tab="bookings">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Bookings</span>
+            </a>
+            <a href="#maintenance" class="nav-tab" data-tab="maintenance">
+                <i class="fas fa-tools"></i>
+                <span>Maintenance</span>
+            </a>
+            <a href="#history" class="nav-tab" data-tab="history">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Room Status Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-gold); color: var(--color-gold-foreground);">
+            <i class="fas fa-bed"></i>
+        </div>
+        <div class="stat-number">{{ room.room_number }}</div>
+        <div class="stat-label">Room Number</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: 
+            {% if room.status == 'available' %}var(--color-success)
+            {% elif room.status == 'occupied' %}var(--color-danger)
+            {% elif room.status == 'maintenance' %}var(--color-warning)
+            {% elif room.status == 'cleaning' %}var(--color-info)
+            {% elif room.status == 'reserved' %}var(--color-primary)
+            {% else %}var(--color-foreground-tertiary){% endif %}; color: white;">
+            <i class="fas fa-circle"></i>
+        </div>
+        <div class="stat-number">{{ room.get_status_display }}</div>
+        <div class="stat-label">Current Status</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-info); color: white;">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number">{{ room.room_type.capacity }}</div>
+        <div class="stat-label">Capacity</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-number">${{ room.effective_price }}</div>
+        <div class="stat-label">Rate per Night</div>
+    </div>
+</div>
+
+<!-- Tab Content -->
+<div id="overview" class="tab-content active">
+    <!-- Room Information -->
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-bed"></i> Room Information
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+            <div>
+                <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Basic Details
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Room Number:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ room.room_number }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Room Type:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ room.room_type.name }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Floor:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ room.get_floor_display }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Capacity:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ room.room_type.capacity }} guests</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Base Price:</span>
+                        <span style="color: var(--color-gold); font-weight: var(--font-weight-semibold);">${{ room.room_type.base_price }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Current Price:</span>
+                        <span style="color: var(--color-gold); font-weight: var(--font-weight-semibold);">${{ room.current_price|default:room.room_type.base_price }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Room Statistics
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Total Bookings:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ stats.total_bookings }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Completed:</span>
+                        <span style="color: var(--color-success); font-weight: var(--font-weight-medium);">{{ stats.completed_bookings }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Cancelled:</span>
+                        <span style="color: var(--color-danger); font-weight: var(--font-weight-medium);">{{ stats.cancelled_bookings }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Total Revenue:</span>
+                        <span style="color: var(--color-success); font-weight: var(--font-weight-semibold);">${{ stats.total_revenue }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Created:</span>
+                        <span style="color: var(--color-foreground);">{{ room.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if room.room_type.amenities %}
+        <div style="margin-top: var(--spacing-lg);">
+            <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                <i class="fas fa-star"></i> Amenities
+            </h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm);">
+                {% for amenity in room.room_type.amenities_list %}
+                <span style="padding: 0.25rem 0.75rem; background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary); border-radius: var(--radius-md); font-size: 0.875rem;">
+                    {{ amenity }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if room.notes %}
+        <div style="margin-top: var(--spacing-lg);">
+            <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                <i class="fas fa-sticky-note"></i> Notes
+            </h4>
+            <p style="color: var(--color-foreground); line-height: 1.6; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-gold);">
+                {{ room.notes }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Current Guest Information -->
+    {% if current_guest %}
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-user"></i> Current Guest Information
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+            <div>
+                <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Guest Details
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Full Name:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_guest.full_name }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Email:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_guest.email }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Phone:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_guest.phone }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Nationality:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_guest.nationality|default:"Not specified" }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">VIP Status:</span>
+                        <span style="color: var(--color-gold); font-weight: var(--font-weight-medium);">{{ current_guest.get_vip_status_display|default:"Standard" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Booking Details
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Booking Number:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_booking.booking_number }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Check-in:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_booking.check_in_date|date:"M d, Y" }} at {{ current_booking.check_in_time|time:"H:i" }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Check-out:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_booking.check_out_date|date:"M d, Y" }} at {{ current_booking.check_out_time|time:"H:i" }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Duration:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_booking.duration }} days</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Guests:</span>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">{{ current_booking.number_of_guests }} people</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--color-card-border);">
+                        <span style="color: var(--color-foreground-secondary);">Total Amount:</span>
+                        <span style="color: var(--color-success); font-weight: var(--font-weight-semibold);">${{ current_booking.total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if current_booking.special_requests or current_booking.dietary_restrictions or current_booking.room_preferences %}
+        <div style="margin-top: var(--spacing-lg);">
+            <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                <i class="fas fa-star"></i> Special Requirements
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                {% if current_booking.special_requests %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-info);">
+                    <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">Special Requests</h5>
+                    <p style="color: var(--color-foreground); line-height: 1.5;">{{ current_booking.special_requests }}</p>
+                </div>
+                {% endif %}
+                
+                {% if current_booking.dietary_restrictions %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-warning);">
+                    <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">Dietary Restrictions</h5>
+                    <p style="color: var(--color-foreground); line-height: 1.5;">{{ current_booking.dietary_restrictions }}</p>
+                </div>
+                {% endif %}
+                
+                {% if current_booking.room_preferences %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-primary);">
+                    <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm);">Room Preferences</h5>
+                    <p style="color: var(--color-foreground); line-height: 1.5;">{{ current_booking.room_preferences }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Payment Information -->
+        {% if current_payments %}
+        <div style="margin-top: var(--spacing-lg);">
+            <h4 style="font-size: 1rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                <i class="fas fa-credit-card"></i> Payment Information
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                {% for payment in current_payments %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md);">
+                    <div>
+                        <span style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">${{ payment.amount }}</span>
+                        <span style="color: var(--color-foreground-secondary); margin-left: var(--spacing-md);">{{ payment.get_payment_method_display }}</span>
+                    </div>
+                    <span style="color: var(--color-foreground-secondary); font-size: 0.875rem;">{{ payment.payment_date|date:"M d, Y" }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-info-circle"></i> Room Status
+        </h3>
+        <div style="text-align: center; padding: var(--spacing-xl);">
+            <i class="fas fa-bed" style="font-size: 3rem; color: var(--color-success); margin-bottom: var(--spacing-md);"></i>
+            <h4 style="color: var(--color-success); font-size: 1.25rem; font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-sm);">
+                Room is Currently Available
+            </h4>
+            <p style="color: var(--color-foreground-secondary);">This room is ready for new bookings.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bookings Tab -->
+<div id="bookings" class="tab-content">
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-calendar-alt"></i> Booking Information
+        </h3>
+        
+        <!-- Upcoming Bookings -->
+        {% if upcoming_bookings %}
+        <div style="margin-bottom: var(--spacing-xl);">
+            <h4 style="font-size: 1.125rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Upcoming Bookings
+            </h4>
+            <div style="display: grid; gap: var(--spacing-md);">
+                {% for booking in upcoming_bookings %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-info);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div>
+                            <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                                {{ booking.guest.full_name }}
+                            </h5>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                                Booking #{{ booking.booking_number }}
+                            </p>
+                        </div>
+                        <span style="padding: 0.25rem 0.75rem; background-color: var(--color-info-light); color: var(--color-info); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                        <div>
+                            <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Check-in:</span>
+                            <p style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                                {{ booking.check_in_date|date:"M d, Y" }} at {{ booking.check_in_time|time:"H:i" }}
+                            </p>
+                        </div>
+                        <div>
+                            <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Check-out:</span>
+                            <p style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                                {{ booking.check_out_date|date:"M d, Y" }} at {{ booking.check_out_time|time:"H:i" }}
+                            </p>
+                        </div>
+                        <div>
+                            <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Guests:</span>
+                            <p style="color: var(--color-foreground); font-weight: var(--font-weight-medium);">
+                                {{ booking.number_of_guests }} people
+                            </p>
+                        </div>
+                        <div>
+                            <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Amount:</span>
+                            <p style="color: var(--color-success); font-weight: var(--font-weight-semibold);">
+                                ${{ booking.total_amount }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Recent Bookings -->
+        {% if recent_bookings %}
+        <div>
+            <h4 style="font-size: 1.125rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Recent Bookings (Last 30 Days)
+            </h4>
+            <div style="display: grid; gap: var(--spacing-md);">
+                {% for booking in recent_bookings %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid 
+                    {% if booking.status == 'completed' %}var(--color-success)
+                    {% elif booking.status == 'cancelled' %}var(--color-danger)
+                    {% elif booking.status == 'confirmed' %}var(--color-info)
+                    {% else %}var(--color-foreground-tertiary){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div>
+                            <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                                {{ booking.guest.full_name }}
+                            </h5>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                                {{ booking.check_in_date|date:"M d" }} - {{ booking.check_out_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                            {% if booking.status == 'completed' %}background-color: var(--color-success-light); color: var(--color-success);
+                            {% elif booking.status == 'cancelled' %}background-color: var(--color-danger-light); color: var(--color-danger);
+                            {% elif booking.status == 'confirmed' %}background-color: var(--color-info-light); color: var(--color-info);
+                            {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Maintenance Tab -->
+<div id="maintenance" class="tab-content">
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-tools"></i> Maintenance Records
+        </h3>
+        
+        {% if maintenance_records %}
+        <div style="margin-bottom: var(--spacing-xl);">
+            <h4 style="font-size: 1.125rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Active Maintenance
+            </h4>
+            <div style="display: grid; gap: var(--spacing-md);">
+                {% for maintenance in maintenance_records %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--color-warning);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div>
+                            <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                                {{ maintenance.get_maintenance_type_display }}
+                            </h5>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                                Scheduled: {{ maintenance.scheduled_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <span style="padding: 0.25rem 0.75rem; background-color: var(--color-warning-light); color: var(--color-warning); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                            {{ maintenance.get_status_display }}
+                        </span>
+                    </div>
+                    <p style="color: var(--color-foreground); line-height: 1.5;">{{ maintenance.description }}</p>
+                    {% if maintenance.cost %}
+                    <p style="color: var(--color-foreground-secondary); margin-top: var(--spacing-sm);">
+                        Estimated Cost: ${{ maintenance.cost }}
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if all_maintenance %}
+        <div>
+            <h4 style="font-size: 1.125rem; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                All Maintenance History
+            </h4>
+            <div style="display: grid; gap: var(--spacing-md);">
+                {% for maintenance in all_maintenance %}
+                <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid 
+                    {% if maintenance.status == 'completed' %}var(--color-success)
+                    {% elif maintenance.status == 'in_progress' %}var(--color-warning)
+                    {% elif maintenance.status == 'scheduled' %}var(--color-info)
+                    {% else %}var(--color-foreground-tertiary){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div>
+                            <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                                {{ maintenance.get_maintenance_type_display }}
+                            </h5>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                                {{ maintenance.scheduled_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                            {% if maintenance.status == 'completed' %}background-color: var(--color-success-light); color: var(--color-success);
+                            {% elif maintenance.status == 'in_progress' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                            {% elif maintenance.status == 'scheduled' %}background-color: var(--color-info-light); color: var(--color-info);
+                            {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                            {{ maintenance.get_status_display }}
+                        </span>
+                    </div>
+                    <p style="color: var(--color-foreground); line-height: 1.5;">{{ maintenance.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if not maintenance_records and not all_maintenance %}
+        <div style="text-align: center; padding: var(--spacing-xl);">
+            <i class="fas fa-tools" style="font-size: 3rem; color: var(--color-foreground-tertiary); margin-bottom: var(--spacing-md);"></i>
+            <h4 style="color: var(--color-foreground-secondary); font-size: 1.125rem; margin-bottom: var(--spacing-sm);">
+                No Maintenance Records
+            </h4>
+            <p style="color: var(--color-foreground-tertiary);">This room has no maintenance history.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- History Tab -->
+<div id="history" class="tab-content">
+    <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+            <i class="fas fa-history"></i> Complete Booking History
+        </h3>
+        
+        {% if all_bookings %}
+        <div style="display: grid; gap: var(--spacing-md);">
+            {% for booking in all_bookings %}
+            <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid 
+                {% if booking.status == 'completed' %}var(--color-success)
+                {% elif booking.status == 'cancelled' %}var(--color-danger)
+                {% elif booking.status == 'confirmed' %}var(--color-info)
+                {% elif booking.status == 'active' %}var(--color-primary)
+                {% else %}var(--color-foreground-tertiary){% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                    <div>
+                        <h5 style="color: var(--color-foreground); font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-xs);">
+                            {{ booking.guest.full_name }}
+                        </h5>
+                        <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                            Booking #{{ booking.booking_number }} • {{ booking.created_at|date:"M d, Y" }}
+                        </p>
+                    </div>
+                    <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                        {% if booking.status == 'completed' %}background-color: var(--color-success-light); color: var(--color-success);
+                        {% elif booking.status == 'cancelled' %}background-color: var(--color-danger-light); color: var(--color-danger);
+                        {% elif booking.status == 'confirmed' %}background-color: var(--color-info-light); color: var(--color-info);
+                        {% elif booking.status == 'active' %}background-color: var(--color-primary-light); color: var(--color-primary);
+                        {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--spacing-md); margin-top: var(--spacing-sm);">
+                    <div>
+                        <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Check-in:</span>
+                        <p style="color: var(--color-foreground); font-size: 0.875rem;">{{ booking.check_in_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Check-out:</span>
+                        <p style="color: var(--color-foreground); font-size: 0.875rem;">{{ booking.check_out_date|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Guests:</span>
+                        <p style="color: var(--color-foreground); font-size: 0.875rem;">{{ booking.number_of_guests }}</p>
+                    </div>
+                    <div>
+                        <span style="color: var(--color-foreground-secondary); font-size: 0.75rem;">Amount:</span>
+                        <p style="color: var(--color-success); font-size: 0.875rem; font-weight: var(--font-weight-medium);">${{ booking.total_amount }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: var(--spacing-xl);">
+            <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--color-foreground-tertiary); margin-bottom: var(--spacing-md);"></i>
+            <h4 style="color: var(--color-foreground-secondary); font-size: 1.125rem; margin-bottom: var(--spacing-sm);">
+                No Booking History
+            </h4>
+            <p style="color: var(--color-foreground-tertiary);">This room has no previous bookings.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tab Navigation JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.nav-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs and contents
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const targetId = this.getAttribute('data-tab');
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+});
+</script>
+
+<!-- Tab Content Styles -->
+<style>
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.875rem;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    color: var(--color-foreground-secondary);
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    cursor: pointer;
+}
+
+.nav-tab:hover {
+    color: var(--color-foreground);
+}
+
+.nav-tab.active {
+    border-bottom-color: var(--color-primary);
+    color: var(--color-foreground);
+}
+
+.nav-tab i {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.btn-warning {
+    background-color: var(--color-warning);
+    color: var(--color-warning-foreground);
+}
+
+.btn-warning:hover {
+    background-color: var(--color-warning-hover);
+}
+</style>
+{% endblock %} 

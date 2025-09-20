@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Conference Booking - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="card">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--color-danger); margin-bottom: var(--spacing-lg);"></i>
+            <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Delete Conference Booking
+            </h3>
+            <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                Are you sure you want to delete booking "{{ booking.booking_number }}"?
+            </p>
+            
+            <div style="background-color: var(--color-background-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+                <p><strong>Booking:</strong> {{ booking.booking_number }}</p>
+                <p><strong>Event:</strong> {{ booking.event_title }}</p>
+                <p><strong>Client:</strong> {{ booking.client_name }}</p>
+                <p><strong>Room:</strong> {{ booking.room.name }}</p>
+                <p><strong>Date:</strong> {{ booking.start_datetime|date:"M d, Y" }}</p>
+                <p><strong>Amount:</strong> ${{ booking.total_amount }}</p>
+            </div>
+            
+            <p style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--spacing-lg);">
+                This action cannot be undone.
+            </p>
+            
+            <form method="post" style="display: flex; gap: var(--spacing-md);">
+                {% csrf_token %}
+                <a href="{% url 'conference:conference_booking_list' %}" class="btn btn-outline" style="flex: 1;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger" style="flex: 1;">
+                    Delete Booking
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

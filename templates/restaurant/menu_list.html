@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu Items - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Menu Management
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Manage menu items, categories, and pricing
+            </p>
+        </div>
+        <div style="display: flex; gap: var(--spacing-md);">
+            <a href="{% url 'restaurant:menu_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add Menu Item
+            </a>
+            <button type="button" class="btn btn-outline" onclick="toggleBulkActions()">
+                <i class="fas fa-check-square"></i>
+                Bulk Actions
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="card">
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+            Search & Filters
+        </h3>
+        
+        <form method="get" style="display: flex; flex-wrap: wrap; gap: var(--spacing-md); align-items: center;">
+            <div style="position: relative; flex: 1; min-width: 200px;">
+                <input type="text" name="search" value="{{ search }}" 
+                       placeholder="Search menu items..." 
+                       style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+            </div>
+            
+            <select name="category" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category == category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="cuisine" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Cuisines</option>
+                {% for value, label in cuisine_choices %}
+                <option value="{{ value }}" {% if cuisine == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="availability" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Items</option>
+                <option value="available" {% if availability == 'available' %}selected{% endif %}>Available</option>
+                <option value="unavailable" {% if availability == 'unavailable' %}selected{% endif %}>Unavailable</option>
+            </select>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Actions Bar (Hidden by default) -->
+<div id="bulkActionsBar" style="display: none; background-color: var(--color-background-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+            <span style="font-size: 0.875rem; color: var(--color-foreground-secondary);">
+                <span id="selectedCount">0</span> items selected
+            </span>
+            <button type="button" class="btn btn-sm btn-outline" onclick="selectAll()">
+                Select All
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="deselectAll()">
+                Deselect All
+            </button>
+        </div>
+        <div style="display: flex; gap: var(--spacing-sm);">
+            <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()" disabled id="bulkDeleteBtn">
+                <i class="fas fa-trash"></i>
+                Delete Selected
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Items Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+    {% for item in page_obj %}
+    <div class="card" style="overflow: hidden; position: relative;">
+        <!-- Bulk Selection Checkbox -->
+        <div style="position: absolute; top: var(--spacing-sm); left: var(--spacing-sm); z-index: 10;">
+            <input type="checkbox" class="item-checkbox" value="{{ item.pk }}" style="transform: scale(1.2);" onchange="updateBulkActions()">
+        </div>
+        
+        <!-- Item Image -->
+        <div style="height: 200px; background-color: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; margin: calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg)) var(--spacing-lg) calc(-1 * var(--spacing-lg));">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+            <i class="fas fa-utensils" style="font-size: 3rem; color: var(--color-foreground-tertiary);"></i>
+            {% endif %}
+        </div>
+        
+        <!-- Item Details -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md);">
+                <h3 style="font-size: 1.125rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                    {{ item.name }}
+                </h3>
+                <span style="font-size: 1.25rem; font-weight: var(--font-weight-bold); color: var(--color-gold);">
+                    ${{ item.price }}
+                </span>
+            </div>
+            
+            <p style="color: var(--color-foreground-secondary); font-size: 0.875rem; margin-bottom: var(--spacing-md); line-height: 1.5;">
+                {{ item.description|truncatewords:15 }}
+            </p>
+            
+            <!-- Item Tags -->
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-xs); margin-bottom: var(--spacing-md);">
+                <span style="padding: 0.25rem 0.5rem; background-color: var(--color-info-light); color: var(--color-info); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                    {{ item.category.name }}
+                </span>
+                <span style="padding: 0.25rem 0.5rem; background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                    {{ item.get_cuisine_type_display }}
+                </span>
+                {% if item.is_vegetarian %}
+                <span style="padding: 0.25rem 0.5rem; background-color: var(--color-success-light); color: var(--color-success); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                    Vegetarian
+                </span>
+                {% endif %}
+                {% if item.is_gluten_free %}
+                <span style="padding: 0.25rem 0.5rem; background-color: var(--color-warning-light); color: var(--color-warning); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                    Gluten Free
+                </span>
+                {% endif %}
+                {% if item.is_spicy %}
+                <span style="padding: 0.25rem 0.5rem; background-color: var(--color-danger-light); color: var(--color-danger); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);">
+                    Spicy
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Item Info -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); font-size: 0.75rem; color: var(--color-foreground-secondary);">
+                <span>
+                    <i class="fas fa-clock" style="margin-right: var(--spacing-xs);"></i>
+                    {{ item.preparation_time }} min
+                </span>
+                <span style="{% if item.is_available %}color: var(--color-success);{% else %}color: var(--color-danger);{% endif %}">
+                    {% if item.is_available %}Available{% else %}Unavailable{% endif %}
+                </span>
+            </div>
+            
+            <!-- Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: var(--spacing-sm);">
+                    <a href="{% url 'restaurant:menu_edit' item.pk %}" style="color: var(--color-info); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'restaurant:menu_delete' item.pk %}" style="color: var(--color-danger); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Delete" onclick="return confirmQuickDelete('{{ item.name }}')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--color-foreground-tertiary);">
+                    {{ item.created_at|date:"M d, Y" }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1;">
+        <div class="card" style="text-align: center; padding: var(--spacing-2xl);">
+            <i class="fas fa-utensils" style="font-size: 4rem; color: var(--color-foreground-tertiary); margin-bottom: var(--spacing-lg);"></i>
+            <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                No menu items found
+            </h3>
+            <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                Get started by adding your first menu item.
+            </p>
+            <a href="{% url 'restaurant:menu_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add Menu Item
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: center; margin-top: var(--spacing-xl);">
+    <nav style="display: flex; gap: var(--spacing-sm);">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if cuisine %}&cuisine={{ cuisine }}{% endif %}{% if availability %}&availability={{ availability }}{% endif %}" 
+           class="btn btn-outline">
+            Previous
+        </a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="btn btn-primary">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if cuisine %}&cuisine={{ cuisine }}{% endif %}{% if availability %}&availability={{ availability }}{% endif %}" 
+               class="btn btn-outline">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if cuisine %}&cuisine={{ cuisine }}{% endif %}{% if availability %}&availability={{ availability }}{% endif %}" 
+           class="btn btn-outline">
+            Next
+        </a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+
+<script>
+// Bulk actions functionality
+let bulkActionsVisible = false;
+
+function toggleBulkActions() {
+    const bulkBar = document.getElementById('bulkActionsBar');
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    
+    bulkActionsVisible = !bulkActionsVisible;
+    bulkBar.style.display = bulkActionsVisible ? 'block' : 'none';
+    
+    // Show/hide checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.style.display = bulkActionsVisible ? 'block' : 'none';
+    });
+    
+    // Reset selections when hiding
+    if (!bulkActionsVisible) {
+        deselectAll();
+    }
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+    const selectedCount = checkboxes.length;
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const countSpan = document.getElementById('selectedCount');
+    
+    countSpan.textContent = selectedCount;
+    bulkDeleteBtn.disabled = selectedCount === 0;
+}
+
+function selectAll() {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateBulkActions();
+}
+
+function deselectAll() {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateBulkActions();
+}
+
+function bulkDelete() {
+    const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (selectedIds.length === 0) {
+        alert('Please select items to delete.');
+        return;
+    }
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedIds.length} selected menu item(s)? This action cannot be undone.`;
+    
+    if (confirm(confirmMessage)) {
+        // For now, we'll redirect to individual delete pages
+        // In a real implementation, you'd want to create a bulk delete endpoint
+        alert('Bulk delete functionality would be implemented here. For now, please delete items individually.');
+    }
+}
+
+function confirmQuickDelete(itemName) {
+    return confirm(`Are you sure you want to delete "${itemName}"? You will be taken to a confirmation page for final verification.`);
+}
+</script>
+{% endblock %} 

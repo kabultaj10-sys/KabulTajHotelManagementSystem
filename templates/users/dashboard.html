@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Hotel Dashboard
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Welcome to Kabul Taj Hotel Management System
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon gold">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number">{{ total_guests }}</div>
+        <div class="stat-label">Total Guests</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+            <i class="fas fa-bed"></i>
+        </div>
+        <div class="stat-number">{{ total_rooms }}</div>
+        <div class="stat-label">Total Rooms</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-info); color: white;">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-number">{{ total_bookings }}</div>
+        <div class="stat-label">Active Bookings</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-warning); color: white;">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-number">${{ total_revenue|default:0 }}</div>
+        <div class="stat-label">Today's Revenue</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+    <!-- Recent Guests -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                Recent Guests
+            </h3>
+            <a href="{% url 'guest_list' %}" style="color: var(--color-gold); text-decoration: none; font-size: 0.875rem;">
+                View All
+            </a>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% for guest in recent_guests %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-gold-foreground); font-weight: var(--font-weight-semibold); font-size: 0.875rem;">
+                        {{ guest.first_name|first }}{{ guest.last_name|first }}
+                    </div>
+                    <div>
+                        <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                            {{ guest.full_name }}
+                        </div>
+                        <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                            {{ guest.email }}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.75rem; color: var(--color-foreground-secondary);">
+                        {{ guest.created_at|date:"M d, Y" }}
+                    </div>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                        {% if guest.vip_status == 'platinum' %}background-color: var(--color-gold-light); color: var(--color-gold);
+                        {% elif guest.vip_status == 'gold' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                        {% elif guest.vip_status == 'silver' %}background-color: var(--color-info-light); color: var(--color-info);
+                        {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                        {{ guest.get_vip_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: var(--spacing-xl); color: var(--color-foreground-secondary);">
+                <i class="fas fa-users" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+                <p>No recent guests</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                Recent Bookings
+            </h3>
+            <a href="{% url 'booking_list' %}" style="color: var(--color-gold); text-decoration: none; font-size: 0.875rem;">
+                View All
+            </a>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% for booking in recent_bookings %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-info); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                            {{ booking.booking_number }}
+                        </div>
+                        <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                            Room {{ booking.room.room_number }}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-foreground); font-size: 0.875rem;">
+                        ${{ booking.total_amount }}
+                    </div>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                        {% if booking.status == 'confirmed' %}background-color: var(--color-success-light); color: var(--color-success);
+                        {% elif booking.status == 'pending' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                        {% elif booking.status == 'checked_in' %}background-color: var(--color-info-light); color: var(--color-info);
+                        {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: var(--spacing-xl); color: var(--color-foreground-secondary);">
+                <i class="fas fa-calendar-check" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+                <p>No recent bookings</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        Quick Actions
+    </h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+        <a href="{% url 'guest_create' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-success); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Add Guest
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Register new guest
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'booking_create' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-info); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    New Booking
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Create booking
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'restaurant:order_create' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-warning); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Restaurant Order
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Create order
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'room_list' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-gold); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: var(--color-gold-foreground);">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Manage Rooms
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    View rooms
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Room Status Overview -->
+<div class="card">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        Room Status Overview
+    </h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--spacing-md);">
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border); text-align: center;">
+            <div style="width: 3rem; height: 3rem; background-color: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); color: white;">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ available_rooms|default:0 }}
+            </div>
+            <div style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                Available
+            </div>
+        </div>
+        
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border); text-align: center;">
+            <div style="width: 3rem; height: 3rem; background-color: var(--color-info); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); color: white;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ occupied_rooms|default:0 }}
+            </div>
+            <div style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                Occupied
+            </div>
+        </div>
+        
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border); text-align: center;">
+            <div style="width: 3rem; height: 3rem; background-color: var(--color-warning); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); color: white;">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ maintenance_rooms|default:0 }}
+            </div>
+            <div style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                Maintenance
+            </div>
+        </div>
+        
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border); text-align: center;">
+            <div style="width: 3rem; height: 3rem; background-color: var(--color-danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); color: white;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ total_rooms|default:0 }}
+            </div>
+            <div style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                Total Rooms
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

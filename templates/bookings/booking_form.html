@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ title }}
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                {% if booking.pk %}Update booking information{% else %}Create a new booking{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Form -->
+<div class="card">
+    <form method="post" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+        {% csrf_token %}
+        
+        <!-- Guest and Room Selection -->
+        <div>
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Guest & Room Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                <!-- Guest -->
+                <div>
+                    <label for="guest" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Guest *
+                    </label>
+                    <select name="guest" id="guest" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;" required>
+                        <option value="">Select guest</option>
+                        {% for guest in guests %}
+                        <option value="{{ guest.id }}" {% if booking.guest.id == guest.id %}selected{% endif %}>
+                            {{ guest.full_name }} ({{ guest.email }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Room -->
+                <div>
+                    <label for="room" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Room *
+                    </label>
+                    <select name="room" id="room" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;" required>
+                        <option value="">Select room</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" {% if booking.room.id == room.id %}selected{% endif %}>
+                            Room {{ room.room_number }} - {{ room.get_room_type_display }} (${{ room.current_price }}/night)
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dates and Duration -->
+        <div style="border-top: 1px solid var(--color-card-border); padding-top: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Stay Details
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                <!-- Check In Date -->
+                <div>
+                    <label for="check_in_date" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Check In Date *
+                    </label>
+                    <input type="date" name="check_in_date" id="check_in_date" value="{{ booking.check_in_date|date:'Y-m-d'|default:'' }}"
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;" required>
+                </div>
+
+                <!-- Check Out Date (only show when editing) -->
+                {% if booking.pk %}
+                <div>
+                    <label for="check_out_date" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Check Out Date
+                    </label>
+                    <input type="date" name="check_out_date" id="check_out_date" value="{{ booking.check_out_date|date:'Y-m-d'|default:'' }}"
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                </div>
+                {% endif %}
+
+                <!-- Number of Guests -->
+                <div>
+                    <label for="number_of_guests" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Number of Guests *
+                    </label>
+                    <input type="number" name="number_of_guests" id="number_of_guests" value="{{ booking.number_of_guests|default:1 }}" min="1" max="10" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter number of guests" required>
+                </div>
+
+                <!-- Status (only show when editing) -->
+                {% if booking.pk %}
+                <div>
+                    <label for="status" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Status
+                    </label>
+                    <select name="status" id="status" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                        <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="active" {% if booking.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        <option value="no_show" {% if booking.status == 'no_show' %}selected{% endif %}>No Show</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pricing -->
+        <div style="border-top: 1px solid var(--color-card-border); padding-top: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Pricing Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                <!-- Room Rate -->
+                <div>
+                    <label for="room_rate" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Room Rate per Night *
+                    </label>
+                    <input type="number" name="room_rate" id="room_rate" value="{{ booking.room_rate|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Enter room rate" step="0.01" required>
+                </div>
+
+                <!-- Total Amount -->
+                <div>
+                    <label for="total_amount" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                        Total Amount
+                    </label>
+                    <input type="number" name="total_amount" id="total_amount" value="{{ booking.total_amount|default:'' }}" 
+                           style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;"
+                           placeholder="Calculated automatically" step="0.01" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Requests -->
+        <div>
+            <label for="special_requests" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                Special Requests
+            </label>
+            <textarea name="special_requests" id="special_requests" rows="3" 
+                      style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; resize: vertical;"
+                      placeholder="Any special requests or preferences">{{ booking.special_requests|default:'' }}</textarea>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div style="display: flex; justify-content: end; gap: var(--spacing-md);">
+            <a href="{% url 'booking_list' %}" class="btn btn-outline">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if booking.pk %}Update{% else %}Create{% endif %} Booking
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Auto-calculate total amount based on dates and room rate
+document.getElementById('check_in_date').addEventListener('change', calculateTotal);
+document.getElementById('room_rate').addEventListener('input', calculateTotal);
+
+// Add event listener for check-out date if it exists (when editing)
+const checkOutDateElement = document.getElementById('check_out_date');
+if (checkOutDateElement) {
+    checkOutDateElement.addEventListener('change', calculateTotal);
+}
+
+function calculateTotal() {
+    const checkIn = document.getElementById('check_in_date').value;
+    const checkOut = checkOutDateElement ? checkOutDateElement.value : null;
+    const roomRate = parseFloat(document.getElementById('room_rate').value) || 0;
+    
+    if (checkIn && roomRate > 0) {
+        if (checkOut && checkOut > checkIn) {
+            // Calculate based on number of nights
+            const startDate = new Date(checkIn);
+            const endDate = new Date(checkOut);
+            const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            if (nights > 0) {
+                const total = nights * roomRate;
+                document.getElementById('total_amount').value = total.toFixed(2);
+            }
+        } else {
+            // For new bookings or when no check-out date, just set the room rate
+            document.getElementById('total_amount').value = roomRate.toFixed(2);
+        }
+    }
+}
+</script>
+{% endblock %} 

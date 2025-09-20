@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Detail - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Staff Detail{% endblock %}
+{% block page_subtitle %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-800">Staff Member Details</h3>
+            <div class="flex space-x-2">
+                <a href="{% url 'staff_edit' staff.pk %}" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+                <a href="{% url 'staff_delete' staff.pk %}" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>Delete
+                </a>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h4 class="text-md font-medium text-gray-800 mb-4">Personal Information</h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Name:</span>
+                        <p class="text-gray-900">{{ staff.user.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Email:</span>
+                        <p class="text-gray-900">{{ staff.user.email }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Employee ID:</span>
+                        <p class="text-gray-900">{{ staff.employee_id }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Position:</span>
+                        <p class="text-gray-900">{{ staff.position }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="text-md font-medium text-gray-800 mb-4">Work Information</h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Department:</span>
+                        <p class="text-gray-900">{{ staff.department.name|default:"Not assigned" }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Hire Date:</span>
+                        <p class="text-gray-900">{{ staff.hire_date }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Salary:</span>
+                        <p class="text-gray-900">${{ staff.salary|default:"Not set" }}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium text-gray-600">Status:</span>
+                        <span class="px-2 py-1 text-xs rounded-full {% if staff.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if staff.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <h4 class="text-md font-medium text-gray-800 mb-4">Emergency Contact</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <span class="text-sm font-medium text-gray-600">Contact Name:</span>
+                    <p class="text-gray-900">{{ staff.emergency_contact|default:"Not provided" }}</p>
+                </div>
+                <div>
+                    <span class="text-sm font-medium text-gray-600">Contact Phone:</span>
+                    <p class="text-gray-900">{{ staff.emergency_phone|default:"Not provided" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <a href="{% url 'staff_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                Back to Staff List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

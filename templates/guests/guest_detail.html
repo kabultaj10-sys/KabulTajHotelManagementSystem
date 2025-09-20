@@ -1,0 +1,722 @@
+{% extends 'base.html' %}
+
+{% block title %}Guest Details - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Guest Details{% endblock %}
+{% block page_subtitle %}Guest Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <!-- Enhanced Header -->
+        <div class="guest-header">
+            <div class="guest-header-main">
+                <div class="guest-info">
+                    <h1 class="guest-name">{{ guest.full_name }}</h1>
+                    <div class="guest-meta">
+                        <span class="guest-id">#{{ guest.id }}</span>
+                        <span class="guest-status vip-{{ guest.vip_status }}">
+                            {{ guest.get_vip_status_display }}
+                        </span>
+                        <span class="guest-date">Registered {{ guest.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="guest-contact">
+                        {% if guest.email %}
+                        <span class="contact-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            {{ guest.email }}
+                        </span>
+                        {% endif %}
+                        {% if guest.phone %}
+                        <span class="contact-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                            {{ guest.phone }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="guest-actions">
+                <a href="{% url 'guest_edit' guest.pk %}" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Edit Guest
+                </a>
+                <a href="{% url 'guest_export' guest.pk %}" class="btn btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Guest Package
+                </a>
+                <a href="{% url 'guest_list' %}" class="btn btn-outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Information Cards -->
+        <div class="cards-grid">
+            <div class="cards-header">
+                <h2 class="section-title">Guest Information</h2>
+                <p class="section-subtitle">Complete details and preferences for {{ guest.full_name }}</p>
+            </div>
+            <!-- Personal Information -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h3>Personal Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">{{ guest.full_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">{{ guest.email|default:"Not provided" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value">{{ guest.phone|default:"Not provided" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">{{ guest.date_of_birth|date:"M d, Y"|default:"Not provided" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Gender</span>
+                            <span class="info-value">{{ guest.get_gender_display|default:"Not specified" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nationality</span>
+                            <span class="info-value">{{ guest.nationality|default:"Not provided" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Passport Number</span>
+                            <span class="info-value">{{ guest.passport_number|default:"Not provided" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">VIP Status</span>
+                            <span class="vip-badge vip-{{ guest.vip_status }}">
+                                {{ guest.get_vip_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Identity Document -->
+            {% if guest.id_picture %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21,15 16,10 5,21"/>
+                        </svg>
+                    </div>
+                    <h3>Identity Document</h3>
+                </div>
+                <div class="card-content">
+                    <div class="id-section">
+                        <div class="id-picture-wrapper">
+                            <img src="{{ guest.id_picture.url }}" alt="ID Picture" class="id-picture" onclick="openImageModal(this.src)">
+                        </div>
+                        <div class="id-info">
+                            <p class="id-upload-date">Uploaded on {{ guest.updated_at|date:"M d, Y" }}</p>
+                            <p class="id-click-hint">Click image to view full size</p>
+                        </div>
+                        {% if guest.id_type and guest.id_number %}
+                        <div class="id-details">
+                            <div class="info-item">
+                                <span class="info-label">ID Type</span>
+                                <span class="info-value">{{ guest.get_id_type_display }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ID Number</span>
+                                <span class="info-value">{{ guest.id_number }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Documents List -->
+            {% if documents %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                    </div>
+                    <h3>Documents</h3>
+                </div>
+                <div class="card-content">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead>
+                                <tr style="border-bottom:1px solid var(--color-card-border);">
+                                    <th style="text-align:left; padding: var(--spacing-md);">Type</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">Number</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">Issuing Country</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">Issue Date</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">Expiry</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">Verified</th>
+                                    <th style="text-align:left; padding: var(--spacing-md);">File</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr style="border-bottom:1px solid var(--color-card-border);">
+                                    <td style="padding: var(--spacing-md);">{{ doc.get_document_type_display }}</td>
+                                    <td style="padding: var(--spacing-md);">{{ doc.document_number }}</td>
+                                    <td style="padding: var(--spacing-md);">{{ doc.issuing_country|default:"—" }}</td>
+                                    <td style="padding: var(--spacing-md);">{{ doc.issue_date|date:"M d, Y"|default:"—" }}</td>
+                                    <td style="padding: var(--spacing-md);">{{ doc.expiry_date|date:"M d, Y"|default:"—" }}{% if doc.is_expired %} <span style="color:var(--color-danger);">(Expired)</span>{% endif %}</td>
+                                    <td style="padding: var(--spacing-md);">{% if doc.is_verified %}<span style="color:var(--color-success);">Yes</span>{% else %}<span style="color:var(--color-foreground-tertiary);">No</span>{% endif %}</td>
+                                    <td style="padding: var(--spacing-md);">
+                                        {% if doc.document_file %}
+                                        <a href="{{ doc.document_file.url }}" target="_blank" class="btn btn-outline">View</a>
+                                        {% else %}
+                                        —
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: var(--spacing-md);">
+                        <a href="{% url 'guest_documents' guest.pk %}" class="btn btn-primary">Manage Documents</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Address Information -->
+            {% if guest.address or guest.city or guest.country %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <h3>Address Information</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        {% if guest.address %}
+                        <div class="info-item full-width">
+                            <span class="info-label">Address</span>
+                            <span class="info-value">{{ guest.address }}</span>
+                        </div>
+                        {% endif %}
+                        {% if guest.city %}
+                        <div class="info-item">
+                            <span class="info-label">City</span>
+                            <span class="info-value">{{ guest.city }}</span>
+                        </div>
+                        {% endif %}
+                        {% if guest.country %}
+                        <div class="info-item">
+                            <span class="info-label">Country</span>
+                            <span class="info-value">{{ guest.country }}</span>
+                        </div>
+                        {% endif %}
+                        {% if guest.postal_code %}
+                        <div class="info-item">
+                            <span class="info-label">Postal Code</span>
+                            <span class="info-value">{{ guest.postal_code }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Special Requests -->
+            {% if guest.special_requests %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                    </div>
+                    <h3>Special Requests</h3>
+                </div>
+                <div class="card-content">
+                    <div class="special-requests">
+                        <p class="requests-text">{{ guest.special_requests }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="modalImage" src="" alt="Full size image">
+    </div>
+</div>
+
+<style>
+/* Enhanced Guest Header */
+.guest-header {
+    background: linear-gradient(135deg, var(--color-card-background) 0%, var(--color-background-secondary) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-card-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.guest-header-main {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+}
+
+
+
+.guest-info {
+    flex: 1;
+}
+
+.guest-name {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.guest-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.guest-id {
+    background: var(--color-background-tertiary);
+    color: var(--color-foreground-secondary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    font-family: 'Courier New', monospace;
+}
+
+.guest-status {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.vip-regular {
+    background: linear-gradient(135deg, var(--color-background-tertiary) 0%, var(--color-card-background) 100%);
+    color: var(--color-foreground-secondary);
+    border: 1px solid var(--color-card-border);
+}
+
+.vip-silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+    color: #2a2a2a;
+    border: 1px solid #b0b0b0;
+}
+
+.vip-gold {
+    background: linear-gradient(135deg, var(--color-gold) 0%, #B8860B 100%);
+    color: white;
+    border: 1px solid var(--color-gold);
+    box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+.vip-platinum {
+    background: linear-gradient(135deg, #e5e4e2 0%, #c0c0c0 100%);
+    color: #2a2a2a;
+    border: 1px solid #d0d0d0;
+}
+
+.guest-date {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.guest-contact {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.contact-item svg {
+    color: var(--color-gold);
+}
+
+.guest-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+/* Cards Grid Layout */
+.cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.cards-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.section-subtitle {
+    color: var(--color-foreground-secondary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Enhanced Info Cards */
+.info-card {
+    background: var(--color-card-background);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all var(--transition-normal);
+}
+
+.info-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.info-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-card-background) 100%);
+    border-bottom: 1px solid var(--color-card-border);
+}
+
+.card-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--color-gold) 0%, #B8860B 100%);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.info-card .card-header h3 {
+    margin: 0;
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-semibold);
+}
+
+.info-card .card-content {
+    padding: var(--spacing-lg);
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-card-border);
+    transition: all var(--transition-normal);
+}
+
+.info-item:hover {
+    background: var(--color-card-hover);
+    border-color: var(--color-gold);
+}
+
+.info-item.full-width {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+}
+
+.info-label {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.info-value {
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.875rem;
+    text-align: right;
+}
+
+.info-item.full-width .info-value {
+    text-align: left;
+    word-break: break-word;
+}
+
+/* ID Picture Section */
+.id-section {
+    text-align: center;
+}
+
+.id-picture-wrapper {
+    margin-bottom: var(--spacing-lg);
+}
+
+.id-picture {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-card-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.id-picture:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+}
+
+.id-info {
+    margin-bottom: var(--spacing-lg);
+}
+
+.id-upload-date {
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.id-click-hint {
+    color: var(--color-foreground-tertiary);
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.id-details {
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-card-border);
+}
+
+/* VIP Badge in Info Cards */
+.vip-badge {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Special Requests */
+.special-requests {
+    padding: var(--spacing-md);
+    background: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-card-border);
+}
+
+.requests-text {
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    margin: auto;
+    padding: var(--spacing-lg);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-lg);
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.close:hover {
+    color: var(--color-gold);
+}
+
+#modalImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .guest-header-main {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-lg);
+    }
+    
+    .guest-meta {
+        justify-content: center;
+    }
+    
+    .guest-contact {
+        justify-content: center;
+    }
+    
+    .guest-actions {
+        justify-content: center;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .info-value {
+        text-align: left;
+    }
+    
+    .cards-header {
+        text-align: left;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .guest-name {
+        font-size: 1.5rem;
+    }
+    
+    .guest-meta {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .guest-contact {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+}
+</style>
+
+<script>
+// Image Modal Functionality
+function openImageModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'flex';
+    modalImg.src = src;
+}
+
+// Close modal when clicking on X or outside the image
+document.querySelector('.close').onclick = function() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('imageModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %} 

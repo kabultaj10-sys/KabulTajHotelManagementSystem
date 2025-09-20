@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+
+{% block title %}Conference Room {{ room.name }} - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Conference Room Details{% endblock %}
+{% block page_subtitle %}Conference Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>{{ room.name }}</h1>
+                <p>Conference room details and information</p>
+            </div>
+            <div class="module-actions">
+                <a href="{% url 'conference:room_edit' room.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit Room
+                </a>
+                <a href="{% url 'conference:conference_room_list' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Room Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Room Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Room Name:</label>
+                        <span>{{ room.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Capacity:</label>
+                        <span>{{ room.capacity }} people</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Floor:</label>
+                        <span>Floor {{ room.floor }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span class="status-badge status-{{ room.status }}">
+                            {{ room.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Active:</label>
+                        <span class="{% if room.is_active %}text-success{% else %}text-danger{% endif %}">
+                            {% if room.is_active %}Yes{% else %}No{% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Created:</label>
+                        <span>{{ room.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Images -->
+        {% if room.image_1 or room.image_2 or room.image_3 %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Room Images</h3>
+            </div>
+            <div class="card-content">
+                <div class="image-gallery">
+                    {% if room.image_1 %}
+                    <div class="gallery-item main-image">
+                        <img src="{{ room.image_1.url }}" alt="{{ room.name }} - Main View" class="room-image">
+                        <div class="image-caption">Main View</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if room.image_2 %}
+                    <div class="gallery-item">
+                        <img src="{{ room.image_2.url }}" alt="{{ room.name }} - Secondary View" class="room-image">
+                        <div class="image-caption">Secondary View</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if room.image_3 %}
+                    <div class="gallery-item">
+                        <img src="{{ room.image_3.url }}" alt="{{ room.name }} - Additional View" class="room-image">
+                        <div class="image-caption">Additional View</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Pricing Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Pricing Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="pricing-grid">
+                    <div class="pricing-item">
+                        <label>Hourly Rate:</label>
+                        <span>${{ room.hourly_rate }}</span>
+                    </div>
+                    <div class="pricing-item">
+                        <label>Daily Rate:</label>
+                        <span>${{ room.daily_rate }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        {% if room.description %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Description</h3>
+            </div>
+            <div class="card-content">
+                <p>{{ room.description|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Amenities -->
+        {% if room.amenities %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Amenities</h3>
+            </div>
+            <div class="card-content">
+                <p>{{ room.amenities|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Bookings -->
+        {% if recent_bookings %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Bookings</h3>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Booking #</th>
+                                <th>Event</th>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                            <tr>
+                                <td>{{ booking.booking_number }}</td>
+                                <td>{{ booking.event_title }}</td>
+                                <td>{{ booking.client_name }}</td>
+                                <td>{{ booking.start_datetime|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ booking.status }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>${{ booking.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Room Statistics -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Room Statistics</h3>
+            </div>
+            <div class="card-content">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ room.bookings.count }}</div>
+                        <div class="stat-label">Total Bookings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ room.bookings.filter.status='confirmed'|length }}</div>
+                        <div class="stat-label">Confirmed Bookings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ room.bookings.filter.status='pending'|length }}</div>
+                        <div class="stat-label">Pending Bookings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ room.bookings.filter.status='completed'|length }}</div>
+                        <div class="stat-label">Completed Bookings</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.module-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.info-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.info-item span {
+    color: var(--color-foreground);
+    font-size: 1rem;
+}
+
+/* Image Gallery */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform var(--transition-normal);
+}
+
+.gallery-item:hover {
+    transform: translateY(-4px);
+}
+
+.gallery-item.main-image {
+    grid-column: 1 / -1;
+}
+
+.room-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    color: white;
+    padding: var(--spacing-md);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.pricing-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background-color: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+}
+
+.pricing-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.pricing-item span {
+    color: var(--color-foreground);
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.stat-item {
+    text-align: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-foreground-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+}
+
+.status-available {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-occupied {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.status-maintenance {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-cleaning {
+    background-color: var(--color-info-light);
+    color: var(--color-info);
+}
+
+.status-out_of_order {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-confirmed {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-pending {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.status-cancelled {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-completed {
+    background-color: var(--color-info-light);
+    color: var(--color-info);
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-foreground);
+    background-color: var(--color-background-secondary);
+}
+
+@media (max-width: 768px) {
+    .module-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .info-grid,
+    .pricing-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %} 

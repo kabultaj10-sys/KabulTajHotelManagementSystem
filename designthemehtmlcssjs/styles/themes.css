@@ -1,0 +1,289 @@
+/* Theme Toggle Button */
+.theme-toggle {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--color-foreground-secondary);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background-color: var(--color-card-hover);
+    color: var(--color-foreground);
+}
+
+.theme-toggle:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Theme Icon Animation */
+.theme-toggle svg {
+    position: absolute;
+    transition: all var(--transition-normal);
+    transform-origin: center;
+}
+
+/* Light Theme - Show Moon, Hide Sun */
+[data-theme="light"] .theme-toggle .sun-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+[data-theme="light"] .theme-toggle .moon-icon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+}
+
+/* Dark Theme - Show Sun, Hide Moon */
+[data-theme="dark"] .theme-toggle .sun-icon {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+
+[data-theme="dark"] .theme-toggle .moon-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+/* Enhanced Theme Transition Effects */
+[data-theme="light"] {
+    /* Light theme specific animations */
+    --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+    /* Dark theme specific animations */
+    --theme-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card Theme Enhancements */
+[data-theme="light"] .card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid var(--color-card-border);
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .card {
+    background: linear-gradient(135deg, var(--color-card) 0%, #202020 100%);
+    border: 1px solid var(--color-card-border);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Sidebar Theme Enhancements */
+[data-theme="light"] .sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .sidebar {
+    background: linear-gradient(180deg, var(--color-sidebar-background) 0%, #151515 100%);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Button Theme Enhancements */
+[data-theme="light"] .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #0052a3 100%);
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+[data-theme="light"] .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-primary-hover) 0%, #003d7a 100%);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+}
+
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, var(--color-gold) 0%, #FFD700 100%);
+    box-shadow: var(--shadow-gold);
+    color: var(--color-gold-foreground);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-gold-hover) 0%, #ffed4e 100%);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* Input Theme Enhancements */
+[data-theme="light"] .input,
+[data-theme="light"] .select {
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .input:focus,
+[data-theme="light"] .select:focus {
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+[data-theme="dark"] .input,
+[data-theme="dark"] .select {
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .input:focus,
+[data-theme="dark"] .select:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+/* Badge Theme Enhancements */
+[data-theme="light"] .badge {
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .badge {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Navigation Theme Enhancements */
+[data-theme="light"] .nav-item {
+    color: var(--color-foreground-secondary);
+}
+
+[data-theme="light"] .nav-item:hover {
+    background-color: var(--color-sidebar-hover);
+    color: var(--color-foreground);
+}
+
+[data-theme="light"] .nav-item.active {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    color: var(--color-primary-foreground);
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+[data-theme="dark"] .nav-item {
+    color: var(--color-foreground-secondary);
+}
+
+[data-theme="dark"] .nav-item:hover {
+    background-color: var(--color-sidebar-hover);
+    color: var(--color-foreground);
+}
+
+[data-theme="dark"] .nav-item.active {
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-hover) 100%);
+    color: var(--color-gold-foreground);
+    box-shadow: var(--shadow-gold);
+}
+
+/* Stats Card Theme Enhancements */
+[data-theme="light"] .stat-card.highlight {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 4px 14px rgba(0, 102, 204, 0.15);
+}
+
+[data-theme="dark"] .stat-card.highlight {
+    background: linear-gradient(135deg, var(--color-card) 0%, #2a2a2a 100%);
+    border: 2px solid var(--color-gold);
+    box-shadow: var(--shadow-gold);
+}
+
+/* Progress Bar Theme Enhancements */
+[data-theme="light"] .progress-bar {
+    background-color: #e9ecef;
+}
+
+[data-theme="light"] .progress-fill {
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+}
+
+[data-theme="dark"] .progress-bar {
+    background-color: var(--color-background-tertiary);
+}
+
+[data-theme="dark"] .progress-fill {
+    background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-gold-hover) 100%);
+}
+
+/* Table Theme Enhancements */
+[data-theme="light"] .table thead th {
+    background-color: var(--color-background-secondary);
+    color: var(--color-foreground-secondary);
+}
+
+[data-theme="light"] .table tbody tr:hover {
+    background-color: var(--color-background-secondary);
+}
+
+[data-theme="dark"] .table thead th {
+    background-color: var(--color-background-tertiary);
+    color: var(--color-foreground-secondary);
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+    background-color: var(--color-background-tertiary);
+}
+
+/* Gold Accent Theme Colors */
+[data-theme="light"] .text-gold {
+    color: #B8860B;
+}
+
+[data-theme="dark"] .text-gold {
+    color: var(--color-gold);
+}
+
+[data-theme="light"] .available {
+    color: var(--color-success);
+}
+
+[data-theme="dark"] .available {
+    color: #22c55e;
+}
+
+[data-theme="light"] .rate {
+    color: var(--color-gold);
+    font-weight: var(--font-weight-semibold);
+}
+
+[data-theme="dark"] .rate {
+    color: var(--color-gold);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Theme transition classes for smooth animations */
+.theme-transitioning * {
+    transition: 
+        color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle svg,
+    .theme-transitioning *,
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    [data-theme="light"] {
+        --color-foreground: #000000;
+        --color-background: #ffffff;
+        --color-card-border: #000000;
+    }
+    
+    [data-theme="dark"] {
+        --color-foreground: #ffffff;
+        --color-background: #000000;
+        --color-card-border: #ffffff;
+    }
+}

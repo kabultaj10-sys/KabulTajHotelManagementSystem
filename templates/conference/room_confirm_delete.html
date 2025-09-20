@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Conference Room - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="card">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--color-danger); margin-bottom: var(--spacing-lg);"></i>
+            <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Delete Conference Room
+            </h3>
+            <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                Are you sure you want to delete conference room "{{ room.name }}"?
+            </p>
+            
+            <div style="background-color: var(--color-background-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">
+                <p><strong>Room:</strong> {{ room.name }}</p>
+                <p><strong>Capacity:</strong> {{ room.capacity }} people</p>
+                <p><strong>Floor:</strong> {{ room.floor }}</p>
+                <p><strong>Status:</strong> {{ room.get_status_display }}</p>
+                <p><strong>Hourly Rate:</strong> ${{ room.hourly_rate }}</p>
+                <p><strong>Daily Rate:</strong> ${{ room.daily_rate }}</p>
+            </div>
+            
+            <p style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--spacing-lg);">
+                This action cannot be undone.
+            </p>
+            
+            <form method="post" style="display: flex; gap: var(--spacing-md);">
+                {% csrf_token %}
+                <a href="{% url 'conference:conference_room_list' %}" class="btn btn-outline" style="flex: 1;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger" style="flex: 1;">
+                    Delete Room
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

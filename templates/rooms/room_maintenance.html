@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Room {{ room.room_number }} • Maintenance{% endblock %}
+
+{% block content %}
+<div class="hotel-header">
+    <div class="header-main">
+        <div class="header-content">
+            <h1 class="header-title">Room {{ room.room_number }} Maintenance</h1>
+            <p class="header-subtitle">Track broken items, repairs, and notes</p>
+        </div>
+
+        <div class="header-actions">
+            <a href="{% url 'room_detail' room.id %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Room</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if edit_record %}
+<div class="card" style="margin-top: var(--spacing-lg);">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        <i class="fas fa-pen"></i> Edit Maintenance
+    </h3>
+    <form method="post" action="{% url 'room_maintenance_edit' room.id edit_record.id %}">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-lg);">
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Type</label>
+                <select name="maintenance_type" class="input">
+                    <option value="routine" {% if edit_record.maintenance_type == 'routine' %}selected{% endif %}>Routine</option>
+                    <option value="repair" {% if edit_record.maintenance_type == 'repair' %}selected{% endif %}>Repair</option>
+                    <option value="emergency" {% if edit_record.maintenance_type == 'emergency' %}selected{% endif %}>Emergency</option>
+                    <option value="upgrade" {% if edit_record.maintenance_type == 'upgrade' %}selected{% endif %}>Upgrade</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Status</label>
+                <select name="status" class="input">
+                    <option value="scheduled" {% if edit_record.status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="in_progress" {% if edit_record.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if edit_record.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if edit_record.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Scheduled Date</label>
+                <input type="date" name="scheduled_date" class="input" value="{{ edit_record.scheduled_date|date:'Y-m-d' }}" />
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Completed Date</label>
+                <input type="date" name="completed_date" class="input" value="{{ edit_record.completed_date|date:'Y-m-d' }}" />
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Cost</label>
+                <input type="number" step="0.01" name="cost" class="input" value="{{ edit_record.cost }}" />
+            </div>
+        </div>
+        <div style="margin-top: var(--spacing-lg); display: grid; gap: var(--spacing-lg);">
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Description</label>
+                <textarea name="description" class="input" rows="3">{{ edit_record.description }}</textarea>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Notes</label>
+                <textarea name="notes" class="input" rows="3">{{ edit_record.notes }}</textarea>
+            </div>
+        </div>
+        <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-md);">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                <span>Save Changes</span>
+            </button>
+            <a href="{% url 'room_maintenance' room.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top: var(--spacing-lg);">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        <i class="fas fa-plus-circle"></i> Add Maintenance Record
+    </h3>
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-lg);">
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Type</label>
+                <select name="maintenance_type" class="input" required>
+                    <option value="">Select type</option>
+                    <option value="routine">Routine</option>
+                    <option value="repair">Repair</option>
+                    <option value="emergency">Emergency</option>
+                    <option value="upgrade">Upgrade</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Status</label>
+                <select name="status" class="input" required>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Scheduled Date</label>
+                <input type="date" name="scheduled_date" class="input" required />
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Cost (optional)</label>
+                <input type="number" step="0.01" name="cost" class="input" />
+            </div>
+        </div>
+        <div style="margin-top: var(--spacing-lg); display: grid; gap: var(--spacing-lg);">
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Description</label>
+                <textarea name="description" class="input" rows="3" placeholder="Describe broken/destroyed items and tools" required></textarea>
+            </div>
+            <div>
+                <label style="display:block; color: var(--color-foreground-secondary); margin-bottom: var(--spacing-sm);">Notes (optional)</label>
+                <textarea name="notes" class="input" rows="3" placeholder="Extra details"></textarea>
+            </div>
+        </div>
+        <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-md);">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>Add Maintenance</span>
+            </button>
+            <a href="{% url 'room_detail' room.id %}" class="btn btn-secondary">Back to Room</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: var(--spacing-lg);">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        <i class="fas fa-tools"></i> Maintenance Records
+    </h3>
+    {% if maintenance_records %}
+    <div style="display: grid; gap: var(--spacing-md);">
+        {% for m in maintenance_records %}
+        <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border-left: 3px solid 
+            {% if m.status == 'completed' %}var(--color-success)
+            {% elif m.status == 'in_progress' %}var(--color-warning)
+            {% elif m.status == 'scheduled' %}var(--color-info)
+            {% else %}var(--color-foreground-tertiary){% endif %};">
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: var(--spacing-md);">
+                <div style="flex: 1;">
+                    <div style="display:flex; align-items:center; gap: var(--spacing-sm); margin-bottom: var(--spacing-xs);">
+                        <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                            {% if m.status == 'completed' %}background-color: var(--color-success-light); color: var(--color-success);
+                            {% elif m.status == 'in_progress' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                            {% elif m.status == 'scheduled' %}background-color: var(--color-info-light); color: var(--color-info);
+                            {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                            {{ m.get_status_display }}
+                        </span>
+                        <span style="color: var(--color-foreground-secondary); font-size: 0.875rem;">{{ m.get_maintenance_type_display }}</span>
+                    </div>
+                    <div style="color: var(--color-foreground); white-space: pre-wrap;">{{ m.description }}</div>
+                    {% if m.notes %}
+                    <div style="color: var(--color-foreground-secondary); white-space: pre-wrap; margin-top: var(--spacing-sm);">{{ m.notes }}</div>
+                    {% endif %}
+                    <div style="display:flex; gap: var(--spacing-lg); margin-top: var(--spacing-sm); color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                        <span>Scheduled: {{ m.scheduled_date|date:"M d, Y" }}</span>
+                        {% if m.completed_date %}<span>Completed: {{ m.completed_date|date:"M d, Y" }}</span>{% endif %}
+                        {% if m.cost %}<span>Cost: ${{ m.cost }}</span>{% endif %}
+                    </div>
+                </div>
+                <div style="display:flex; gap: var(--spacing-sm);">
+                    <a href="{% url 'room_maintenance_edit' room.id m.id %}" class="btn btn-outline">
+                        <i class="fas fa-pen"></i>
+                        <span>Edit</span>
+                    </a>
+                    <form method="post" action="{% url 'room_maintenance_delete' room.id m.id %}" onsubmit="return confirm('Delete this record?');">
+                        {% csrf_token %}
+                        <button class="btn btn-danger" type="submit">
+                            <i class="fas fa-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: var(--spacing-xl);">
+        <i class="fas fa-tools" style="font-size: 3rem; color: var(--color-foreground-tertiary); margin-bottom: var(--spacing-md);"></i>
+        <h4 style="color: var(--color-foreground-secondary); font-size: 1.125rem; margin-bottom: var(--spacing-sm);">
+            No Maintenance Records
+        </h4>
+        <p style="color: var(--color-foreground-tertiary);">Add maintenance entries to track issues and repairs.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

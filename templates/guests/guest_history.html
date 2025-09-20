@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Customer History - Kabul Taj{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--spacing-lg);">
+    <div>
+      <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">Customer History</h1>
+      <p style="color: var(--color-foreground-secondary);">All changes including deletions are recorded here.</p>
+    </div>
+    <div style="display:flex; gap: var(--spacing-md);">
+      <a href="{% url 'guest_list' %}" class="btn btn-outline">Back to Guests</a>
+      <a href="{% url 'guest_history_export' %}?page={{ page_obj.number }}{% if search %}&search={{ search }}{% endif %}{% if event %}&event={{ event }}{% endif %}" class="btn btn-primary">Download this page (CSV)</a>
+    </div>
+  </div>
+
+  <form method="get" style="display:flex; flex-wrap:wrap; gap: var(--spacing-md); align-items:center; margin-bottom: var(--spacing-md);">
+    <input name="search" value="{{ search }}" placeholder="Search name, email, phone" style="flex:1; min-width:220px; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border:1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground);">
+    <select name="event" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border:1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); min-width:160px;">
+      <option value="">All events</option>
+      <option value="created" {% if event == 'created' %}selected{% endif %}>Created</option>
+      <option value="updated" {% if event == 'updated' %}selected{% endif %}>Updated</option>
+      <option value="deleted" {% if event == 'deleted' %}selected{% endif %}>Deleted</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--color-card-border);">
+          <th style="text-align:left; padding: var(--spacing-md);">When</th>
+          <th style="text-align:left; padding: var(--spacing-md);">Event</th>
+          <th style="text-align:left; padding: var(--spacing-md);">Name</th>
+          <th style="text-align:left; padding: var(--spacing-md);">Email</th>
+          <th style="text-align:left; padding: var(--spacing-md);">Phone</th>
+          <th style="text-align:left; padding: var(--spacing-md);">By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in page_obj %}
+        <tr style="border-bottom:1px solid var(--color-card-border);">
+          <td style="padding: var(--spacing-md);">{{ h.history_date|date:"M d, Y H:i" }}</td>
+          <td style="padding: var(--spacing-md);">
+            {% if h.history_type == '+' %}
+              <span style="color:var(--color-success);">Created</span>
+            {% elif h.history_type == '~' %}
+              <span style="color:var(--color-info);">Updated</span>
+            {% elif h.history_type == '-' %}
+              <span style="color:var(--color-danger);">Deleted</span>
+            {% else %}
+              <span>—</span>
+            {% endif %}
+          </td>
+          <td style="padding: var(--spacing-md);">
+            {% if h.id %}
+              <a href="{% url 'guest_detail' h.id %}">{{ h.first_name }} {{ h.last_name }}</a>
+            {% else %}
+              {{ h.first_name }} {{ h.last_name }}
+            {% endif %}
+          </td>
+          <td style="padding: var(--spacing-md);">{{ h.email }}</td>
+          <td style="padding: var(--spacing-md);">{{ h.phone }}</td>
+          <td style="padding: var(--spacing-md);">
+            <div>{{ h.history_user|default:"System" }}</div>
+            {% if h.id and guest_stats.h.id %}
+              <div style="font-size: 0.85em; color: var(--color-foreground-secondary);">
+                Bookings: {{ guest_stats.h.id.total_bookings }} • Completed: {{ guest_stats.h.id.completed_bookings }}
+                <a href="{% url 'restaurant:order_list' %}?guest_id={{ h.id }}" style="margin-left:8px;">Orders</a>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding: var(--spacing-xl); text-align:center; color: var(--color-foreground-secondary);">No history records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div style="display:flex; justify-content:center; margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top:1px solid var(--color-card-border);">
+    <nav style="display:flex; gap: var(--spacing-sm);">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if event %}&event={{ event }}{% endif %}" class="btn btn-outline">Previous</a>
+      {% endif %}
+      <span style="padding: var(--spacing-sm) var(--spacing-md); color: var(--color-foreground-secondary);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if event %}&event={{ event }}{% endif %}" class="btn btn-outline">Next</a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

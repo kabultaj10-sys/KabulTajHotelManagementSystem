@@ -1,0 +1,956 @@
+{% extends 'base.html' %}
+
+{% block title %}Billing Dashboard - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Billing Dashboard{% endblock %}
+{% block page_subtitle %}Financial Overview & Revenue Tracking{% endblock %}
+
+{% block content %}
+<div class="modern-billing-dashboard">
+    <!-- Hero Header -->
+    <div class="hero-header">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Financial Overview</h1>
+                <p>Track revenue, manage invoices, and monitor your hotel's financial performance</p>
+            </div>
+            <div class="hero-controls">
+                <div class="period-filter">
+                    <select id="timeFilter" class="period-select">
+                        <option value="today" {% if time_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if time_filter == 'week' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="month" {% if time_filter == 'month' %}selected{% endif %}>Last 30 Days</option>
+                        <option value="quarter" {% if time_filter == 'quarter' %}selected{% endif %}>Last 90 Days</option>
+                        <option value="year" {% if time_filter == 'year' %}selected{% endif %}>Last Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <a href="{% url 'invoice_create' %}" class="create-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Create Invoice
+                </a>
+            </div>
+        </div>
+        <div class="period-indicator">{{ period_name }}</div>
+    </div>
+
+    <!-- Custom Date Range -->
+    <div id="customDateRange" class="custom-range" style="display: none;">
+        <div class="custom-range-card">
+            <h3>Custom Date Range</h3>
+            <form method="get" class="date-form">
+                <div class="date-inputs">
+                    <div class="input-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="input-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    </div>
+                </div>
+                <button type="submit" class="apply-btn">Apply Filter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card revenue">
+            <div class="metric-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>Total Revenue</h3>
+                <div class="metric-value">${{ revenue_data.total_revenue|floatformat:2 }}</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="18,15 12,9 6,15"/>
+                    </svg>
+                    +{{ revenue_data.growth_rate }}% vs last period
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card invoices">
+            <div class="metric-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>Invoices</h3>
+                <div class="metric-value">{{ revenue_data.invoice_count }}</div>
+                <div class="metric-subtitle">{{ revenue_data.paid_invoices }} paid, {{ revenue_data.pending_invoices }} pending</div>
+            </div>
+        </div>
+
+        <div class="metric-card average">
+            <div class="metric-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>Average Invoice</h3>
+                <div class="metric-value">${{ revenue_data.average_invoice|floatformat:2 }}</div>
+                <div class="metric-subtitle">Per transaction</div>
+            </div>
+        </div>
+
+        <div class="metric-card growth">
+            <div class="metric-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+            </div>
+            <div class="metric-content">
+                <h3>Growth Rate</h3>
+                <div class="metric-value">{{ revenue_data.growth_rate }}%</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="18,15 12,9 6,15"/>
+                    </svg>
+                    Growing steadily
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-card breakdown">
+            <div class="chart-header">
+                <h3>Revenue Breakdown</h3>
+                <p>Revenue distribution by service type</p>
+            </div>
+            <div class="chart-content">
+                <div class="breakdown-list">
+                    {% for service in service_breakdown %}
+                    <div class="breakdown-item">
+                        <div class="breakdown-info">
+                            <span class="service-name">{{ service.service }}</span>
+                            <span class="service-amount">${{ service.amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="bar-fill" style="width: {{ service.percentage }}%"></div>
+                        </div>
+                        <span class="percentage">{{ service.percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card trend">
+            <div class="chart-header">
+                <h3>Revenue Trend</h3>
+                <p>Monthly revenue performance</p>
+            </div>
+            <div class="chart-content">
+                <canvas id="revenueChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="transactions-section">
+        <div class="section-header">
+            <div class="header-content">
+                <h3>Recent Transactions</h3>
+                <p>Latest invoice and payment activities</p>
+            </div>
+            <a href="{% url 'invoice_list' %}" class="view-all-btn">
+                View All
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="transactions-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>
+                            <div class="invoice-id">#{{ transaction.id }}</div>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">{{ transaction.customer }}</div>
+                                {% if transaction.customer_email %}
+                                <div class="customer-email">{{ transaction.customer_email }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="service-type">{{ transaction.service }}</span>
+                        </td>
+                        <td>
+                            <span class="amount">${{ transaction.amount|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ transaction.status }}">
+                                {{ transaction.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="date">{{ transaction.date }}</span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn" title="View Details">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                                <button class="action-btn" title="Edit">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                        <line x1="1" y1="10" x2="23" y2="10"/>
+                                    </svg>
+                                </div>
+                                <h3>No transactions found</h3>
+                                <p>Get started by creating your first invoice</p>
+                                <a href="{% url 'invoice_create' %}" class="create-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                    Create Invoice
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modern Billing Dashboard Styles */
+.modern-billing-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Hero Header */
+.hero-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    color: white;
+}
+
+.hero-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-text h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero-text p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.hero-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.period-filter {
+    position: relative;
+}
+
+.period-select {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.period-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.period-select option {
+    background: #2d3748;
+    color: white;
+}
+
+.create-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.period-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* Custom Date Range */
+.custom-range {
+    margin-bottom: 2rem;
+}
+
+.custom-range-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.custom-range-card h3 {
+    margin: 0 0 1rem 0;
+    color: #1a202c;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.date-form {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.input-group {
+    flex: 1;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 0.875rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.apply-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apply-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.metric-card.revenue::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+.metric-card.invoices::before { background: linear-gradient(90deg, #48bb78, #38a169); }
+.metric-card.average::before { background: linear-gradient(90deg, #4299e1, #3182ce); }
+.metric-card.growth::before { background: linear-gradient(90deg, #ed8936, #dd6b20); }
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.metric-card.revenue .metric-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+.metric-card.invoices .metric-icon { background: linear-gradient(135deg, #48bb78, #38a169); }
+.metric-card.average .metric-icon { background: linear-gradient(135deg, #4299e1, #3182ce); }
+.metric-card.growth .metric-icon { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+
+.metric-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #4a5568;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+}
+
+.metric-change {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.metric-change.positive {
+    color: #48bb78;
+}
+
+.metric-change.negative {
+    color: #f56565;
+}
+
+.metric-subtitle {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 0.5rem;
+}
+
+/* Charts Section */
+.charts-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.chart-header h3 {
+    margin: 0 0 0.25rem 0;
+    color: #1a202c;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.chart-header p {
+    margin: 0 0 1.5rem 0;
+    color: #718096;
+    font-size: 0.875rem;
+}
+
+.breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.breakdown-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.service-name {
+    font-weight: 500;
+    color: #1a202c;
+}
+
+.service-amount {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.breakdown-bar {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.percentage {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #718096;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Transactions Section */
+.transactions-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.header-content h3 {
+    margin: 0 0 0.25rem 0;
+    color: #1a202c;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.header-content p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.875rem;
+}
+
+.view-all-btn {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.transactions-table {
+    overflow-x: auto;
+}
+
+.transactions-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transactions-table th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.transactions-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f7fafc;
+    vertical-align: top;
+}
+
+.transactions-table tbody tr:hover {
+    background: #f7fafc;
+}
+
+.invoice-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.875rem;
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.customer-name {
+    font-weight: 500;
+    color: #1a202c;
+    font-size: 0.875rem;
+}
+
+.customer-email {
+    font-size: 0.75rem;
+    color: #718096;
+}
+
+.service-type {
+    font-size: 0.875rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.amount {
+    font-weight: 600;
+    color: #48bb78;
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pending {
+    background: #fef5e7;
+    color: #ed8936;
+}
+
+.status-paid {
+    background: #f0fff4;
+    color: #48bb78;
+}
+
+.status-failed {
+    background: #fed7d7;
+    color: #f56565;
+}
+
+.date {
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    color: #1a202c;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-icon {
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.empty-state p {
+    color: #718096;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero-content {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+    
+    .hero-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .modern-billing-dashboard {
+        padding: 0 1rem;
+    }
+    
+    .hero-header {
+        padding: 2rem 1rem;
+    }
+    
+    .hero-text h1 {
+        font-size: 2rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .date-form {
+        flex-direction: column;
+    }
+    
+    .date-inputs {
+        flex-direction: column;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .transactions-table {
+        font-size: 0.875rem;
+    }
+    
+    .transactions-table th,
+    .transactions-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Time filter functionality
+document.getElementById('timeFilter').addEventListener('change', function() {
+    const value = this.value;
+    const customRange = document.getElementById('customDateRange');
+    
+    if (value === 'custom') {
+        customRange.style.display = 'block';
+    } else {
+        customRange.style.display = 'none';
+        // Redirect with new filter
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('time_filter', value);
+        window.location.href = currentUrl.toString();
+    }
+});
+
+// Revenue Chart
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const revenueData = {{ revenue_trend|safe }};
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: revenueData.map(item => item.month),
+        datasets: [{
+            label: 'Revenue ($)',
+            data: revenueData.map(item => item.revenue),
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#667eea',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: '#e2e8f0'
+                },
+                ticks: {
+                    color: '#718096',
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: '#e2e8f0'
+                },
+                ticks: {
+                    color: '#718096'
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

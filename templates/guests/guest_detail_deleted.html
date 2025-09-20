@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Guest Details (Deleted){% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--spacing-lg);">
+    <div>
+      <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+        Guest Details (Historical)
+      </h1>
+      <p style="color: var(--color-foreground-secondary);">This guest was deleted. Showing the latest available snapshot.</p>
+    </div>
+    <div style="display:flex; gap: var(--spacing-md);">
+      <a href="{% url 'guest_history' %}" class="btn btn-outline">Back to History</a>
+      <a href="{% url 'guest_list' %}" class="btn btn-outline">Back to Guests</a>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--spacing-lg);">
+    <div>
+      <h2 style="margin-bottom: var(--spacing-sm);">Identity</h2>
+      <div><strong>Name:</strong> {{ historical_guest.first_name }} {{ historical_guest.last_name }}</div>
+      <div><strong>Email:</strong> {{ historical_guest.email|default:'—' }}</div>
+      <div><strong>Phone:</strong> {{ historical_guest.phone|default:'—' }}</div>
+      <div><strong>Gender:</strong> {{ historical_guest.gender|default:'—' }}</div>
+      <div><strong>Date of Birth:</strong> {{ historical_guest.date_of_birth|date:'M d, Y'|default:'—' }}</div>
+    </div>
+
+    <div>
+      <h2 style="margin-bottom: var(--spacing-sm);">Origin</h2>
+      <div><strong>Nationality:</strong> {{ historical_guest.nationality|default:'—' }}</div>
+      <div><strong>City:</strong> {{ historical_guest.city|default:'—' }}</div>
+      <div><strong>Country:</strong> {{ historical_guest.country|default:'—' }}</div>
+    </div>
+
+    <div>
+      <h2 style="margin-bottom: var(--spacing-sm);">Documents</h2>
+      <div><strong>ID Type:</strong> {{ historical_guest.id_type|default:'—' }}</div>
+      <div><strong>ID Number:</strong> {{ historical_guest.id_number|default:'—' }}</div>
+      <div><strong>Passport:</strong> {{ historical_guest.passport_number|default:'—' }}</div>
+    </div>
+  </div>
+
+  <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top:1px solid var(--color-card-border); color: var(--color-foreground-secondary);">
+    <div>History date: {{ historical_guest.history_date|date:"M d, Y H:i" }}</div>
+    <div>Event: {% if is_deleted %}Deleted{% else %}Snapshot{% endif %}</div>
+  </div>
+</div>
+{% endblock %}
+
+

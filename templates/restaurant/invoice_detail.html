@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Invoice {{ invoice.invoice_number }} - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Invoice {{ invoice.invoice_number }}{% endblock %}
+{% block page_subtitle %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Invoice {{ invoice.invoice_number }}</h1>
+                <p>Restaurant invoice details and management</p>
+            </div>
+            <div class="module-actions">
+                <a href="{% url 'restaurant:invoice_receipt_pdf' invoice.pk %}" class="btn btn-primary">
+                    <i class="fas fa-print"></i>
+                    Print Invoice
+                </a>
+                <a href="{% url 'restaurant:invoice_edit' invoice.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit Invoice
+                </a>
+                <a href="{% url 'restaurant:invoice_list' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Invoices
+                </a>
+            </div>
+        </div>
+
+        <!-- Invoice Status -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Invoice Status</h2>
+            </div>
+            <div class="status-info">
+                <span class="badge badge-{{ invoice.status }}">{{ invoice.get_status_display }}</span>
+                {% if invoice.is_overdue %}
+                <span class="badge badge-danger">Overdue</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Invoice Information -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Invoice Information</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Invoice Number:</label>
+                    <span>{{ invoice.invoice_number }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Invoice Date:</label>
+                    <span>{{ invoice.invoice_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Due Date:</label>
+                    <span class="{% if invoice.is_overdue %}text-danger{% endif %}">
+                        {{ invoice.due_date|date:"F d, Y" }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <label>Order Number:</label>
+                    <span>{{ invoice.order.order_number }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Customer Information</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Customer Name:</label>
+                    <span>{{ invoice.customer_name }}</span>
+                </div>
+                {% if invoice.customer_email %}
+                <div class="info-item">
+                    <label>Email:</label>
+                    <span>{{ invoice.customer_email }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.customer_phone %}
+                <div class="info-item">
+                    <label>Phone:</label>
+                    <span>{{ invoice.customer_phone }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.customer_address %}
+                <div class="info-item">
+                    <label>Address:</label>
+                    <span>{{ invoice.customer_address }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Invoice Items -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Invoice Items</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in invoice.items.all %}
+                        <tr>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.unit_price|floatformat:2 }}</td>
+                            <td>${{ item.total_price|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No items found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Invoice Summary -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Invoice Summary</h2>
+            </div>
+            <div class="invoice-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>${{ invoice.subtotal|floatformat:2 }}</span>
+                </div>
+                {% if invoice.tax_amount > 0 %}
+                <div class="summary-row">
+                    <span>Tax ({{ invoice.tax_rate }}%):</span>
+                    <span>${{ invoice.tax_amount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.discount_amount > 0 %}
+                <div class="summary-row">
+                    <span>Discount:</span>
+                    <span>-${{ invoice.discount_amount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span>${{ invoice.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        {% if invoice.notes or invoice.terms_conditions %}
+        <div class="card">
+            <div class="card-header">
+                <h2>Additional Information</h2>
+            </div>
+            {% if invoice.notes %}
+            <div class="info-section">
+                <h3>Notes</h3>
+                <p>{{ invoice.notes }}</p>
+            </div>
+            {% endif %}
+            {% if invoice.terms_conditions %}
+            <div class="info-section">
+                <h3>Terms & Conditions</h3>
+                <p>{{ invoice.terms_conditions }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Payment Information -->
+        {% if invoice.payment_method %}
+        <div class="card">
+            <div class="card-header">
+                <h2>Payment Information</h2>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Payment Method:</label>
+                    <span>{{ invoice.get_payment_method_display }}</span>
+                </div>
+                {% if invoice.payment_reference %}
+                <div class="info-item">
+                    <label>Payment Reference:</label>
+                    <span>{{ invoice.payment_reference }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

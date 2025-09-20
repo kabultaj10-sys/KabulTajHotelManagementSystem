@@ -1,0 +1,640 @@
+{% extends 'base.html' %}
+
+{% block title %}Conference Rooms - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Conference Rooms{% endblock %}
+{% block page_subtitle %}Manage conference rooms and facilities{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <!-- Enhanced Header -->
+        <div class="rooms-header">
+            <div class="header-main">
+                <div class="header-title">
+                    <h1>Conference Rooms</h1>
+                    <div class="header-subtitle">
+                        <span class="subtitle-text">Manage conference rooms and facilities</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'conference:room_create' %}" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add Conference Room
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon gold">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9,22 9,12 15,12 15,22"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Rooms</h3>
+                    <p class="stat-number">{{ total_rooms }}</p>
+                    <span class="stat-subtitle">Conference facilities</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                        <line x1="9" y1="9" x2="9.01" y2="9"/>
+                        <line x1="15" y1="9" x2="15.01" y2="9"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3>Available</h3>
+                    <p class="stat-number">{{ available_rooms }}</p>
+                    <span class="stat-subtitle">Ready for booking</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: var(--color-warning); color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3>Occupied</h3>
+                    <p class="stat-number">{{ occupied_rooms }}</p>
+                    <span class="stat-subtitle">Currently in use</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: var(--color-danger); color: white;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3>Maintenance</h3>
+                    <p class="stat-number">{{ maintenance_rooms }}</p>
+                    <span class="stat-subtitle">Under maintenance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conference Rooms Table -->
+        <div class="card rooms-table-card">
+            <div class="card-header">
+                <div class="header-content">
+                    <h3>All Conference Rooms</h3>
+                    <p class="header-description">View and manage all conference facilities</p>
+                </div>
+                <div class="header-stats">
+                    <span class="stat-item">
+                        <span class="stat-number">{{ total_rooms }}</span>
+                        <span class="stat-label">Total Rooms</span>
+                    </span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="data-table rooms-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Room Name</th>
+                                <th>Capacity</th>
+                                <th>Floor</th>
+                                <th>Status</th>
+                                <th>Hourly Rate</th>
+                                <th>Daily Rate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room in rooms %}
+                            <tr>
+                                <td>
+                                    <div class="room-image-thumbnail">
+                                        {% if room.image_1 %}
+                                            <img src="{{ room.image_1.url }}" alt="{{ room.name }}" class="thumbnail-image">
+                                        {% else %}
+                                            <div class="no-image-placeholder">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                    <polyline points="7,10 12,15 17,10"/>
+                                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                                </svg>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="room-info">
+                                        <span class="room-name">{{ room.name }}</span>
+                                        {% if room.description %}
+                                        <span class="room-description">{{ room.description|truncatechars:50 }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="capacity">{{ room.capacity }} people</span>
+                                </td>
+                                <td>
+                                    <span class="floor">Floor {{ room.floor }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ room.status }}">
+                                        {{ room.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="rate">${{ room.hourly_rate }}</span>
+                                </td>
+                                <td>
+                                    <span class="rate">${{ room.daily_rate }}</span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="#" class="btn btn-icon" title="View Details">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                        </a>
+                                        <a href="#" class="btn btn-icon" title="Edit">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </a>
+                                        <a href="#" class="btn btn-icon" title="Book Now">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                                <polyline points="9,22 9,12 15,12 15,22"/>
+                                            </svg>
+                                        </div>
+                                        <h3>No conference rooms found</h3>
+                                        <p>Add conference rooms to get started with your event management.</p>
+                                        <a href="{% url 'conference:room_create' %}" class="btn btn-primary">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 5v14M5 12h14"/>
+                                            </svg>
+                                            Add Conference Room
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card quick-actions-card">
+            <div class="card-header">
+                <h3>Quick Actions</h3>
+            </div>
+            <div class="card-content">
+                <div class="actions-grid">
+                    <a href="{% url 'conference:room_create' %}" class="action-card">
+                        <div class="action-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                        </div>
+                        <div class="action-content">
+                            <h4>Add Room</h4>
+                            <p>Create a new conference room</p>
+                        </div>
+                    </a>
+                    <a href="{% url 'conference:conference_booking_list' %}" class="action-card">
+                        <div class="action-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                        <div class="action-content">
+                            <h4>New Booking</h4>
+                            <p>Create a conference booking</p>
+                        </div>
+                    </a>
+                    <a href="#" class="action-card">
+                        <div class="action-icon orange">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                            </svg>
+                        </div>
+                        <div class="action-content">
+                            <h4>Manage Equipment</h4>
+                            <p>View and manage equipment</p>
+                        </div>
+                    </a>
+                    <a href="#" class="action-card">
+                        <div class="action-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 20V10"/>
+                                <path d="M6 20V4"/>
+                                <path d="M12 20V14"/>
+                                <path d="M6 4h12"/>
+                            </svg>
+                        </div>
+                        <div class="action-content">
+                            <h4>Reports</h4>
+                            <p>Generate room reports</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Enhanced Rooms Header */
+.rooms-header {
+    background: linear-gradient(135deg, var(--color-card-background) 0%, var(--color-background-secondary) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-card-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+}
+
+.header-title h1 {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.header-subtitle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.subtitle-text {
+    color: var(--color-foreground-secondary);
+    font-size: 1rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Enhanced Rooms Table Card */
+.rooms-table-card {
+    margin-bottom: var(--spacing-xl);
+}
+
+.rooms-table-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+}
+
+.header-content h3 {
+    color: var(--color-foreground);
+    margin-bottom: var(--spacing-xs);
+}
+
+.header-description {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.header-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-gold);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--color-foreground-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Enhanced Rooms Table */
+.rooms-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-card-background);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Room Image Thumbnail */
+.room-image-thumbnail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+}
+
+.thumbnail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-card-border);
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-card-hover);
+    border: 2px dashed var(--color-card-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground-tertiary);
+}
+
+.rooms-table th {
+    background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-card-background) 100%);
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-semibold);
+    text-align: left;
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-bottom: 2px solid var(--color-card-border);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rooms-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-card-border);
+    vertical-align: top;
+}
+
+.rooms-table tbody tr:hover {
+    background-color: var(--color-card-hover);
+}
+
+.room-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.room-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+}
+
+.room-description {
+    font-size: 0.75rem;
+    color: var(--color-foreground-secondary);
+}
+
+.capacity {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+}
+
+.floor {
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+}
+
+.rate {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-success);
+    font-size: 0.875rem;
+}
+
+/* Enhanced Status Badges */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+.status-available {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-occupied {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.status-maintenance {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-cleaning {
+    background-color: var(--color-info-light);
+    color: var(--color-info);
+}
+
+.status-out_of_order {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+/* Quick Actions */
+.quick-actions-card {
+    margin-bottom: var(--spacing-xl);
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--color-card-background);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+}
+
+.action-card:hover {
+    border-color: var(--color-gold);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    color: white;
+    flex-shrink: 0;
+}
+
+.action-icon.blue {
+    background: linear-gradient(135deg, var(--color-info) 0%, #0284c7 100%);
+}
+
+.action-icon.green {
+    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+}
+
+.action-icon.orange {
+    background: linear-gradient(135deg, var(--color-warning) 0%, #ea580c 100%);
+}
+
+.action-icon.purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.action-content h4 {
+    color: var(--color-foreground);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1rem;
+}
+
+.action-content p {
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.empty-icon {
+    color: var(--color-foreground-tertiary);
+    margin-bottom: var(--spacing-md);
+}
+
+.empty-state h3 {
+    color: var(--color-foreground);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--color-foreground-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .header-main {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+    
+    .header-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .rooms-header {
+        padding: var(--spacing-lg);
+    }
+    
+    .header-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .rooms-table-card .card-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .rooms-table {
+        min-width: 800px;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .action-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %} 

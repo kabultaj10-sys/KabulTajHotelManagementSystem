@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Conference Bookings - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Conference Bookings
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Manage all conference room bookings and events
+            </p>
+        </div>
+        <div style="display: flex; gap: var(--spacing-md);">
+            <a href="{% url 'conference:booking_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                New Booking
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Bookings Table -->
+<div class="card">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--color-card-border);">
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">#</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Event Name</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Organizer</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Room</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Start</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">End</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Status</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr style="border-bottom: 1px solid var(--color-card-border); transition: background-color var(--transition-fast);" onmouseover="this.style.backgroundColor='var(--color-background-secondary)'" onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="padding: var(--spacing-md);">{{ forloop.counter }}</td>
+                    <td style="padding: var(--spacing-md);">{{ booking.event_name }}</td>
+                    <td style="padding: var(--spacing-md);">{{ booking.organizer_name }}</td>
+                    <td style="padding: var(--spacing-md);">{{ booking.room.name }}</td>
+                    <td style="padding: var(--spacing-md);">{{ booking.start_datetime|date:"M d, Y H:i" }}</td>
+                    <td style="padding: var(--spacing-md);">{{ booking.end_datetime|date:"M d, Y H:i" }}</td>
+                    <td style="padding: var(--spacing-md);">
+                        <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                            {% if booking.status == 'confirmed' %}background-color: var(--color-success-light); color: var(--color-success);
+                            {% elif booking.status == 'pending' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                            {% elif booking.status == 'cancelled' %}background-color: var(--color-danger-light); color: var(--color-danger);
+                            {% else %}background-color: var(--color-info-light); color: var(--color-info);{% endif %}">
+                            {{ booking.get_status_display|default:booking.status }}
+                        </span>
+                    </td>
+                    <td style="padding: var(--spacing-md);">
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <a href="{% url 'conference:booking_detail' booking.id %}" style="color: var(--color-info); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'conference:booking_edit' booking.id %}" style="color: var(--color-warning); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'conference:booking_delete' booking.id %}" style="color: var(--color-danger); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="padding: var(--spacing-2xl); text-align: center; color: var(--color-foreground-secondary);">
+                        No conference bookings found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

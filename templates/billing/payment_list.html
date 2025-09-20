@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Payments - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block page_subtitle %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Payments</h1>
+                <p>Track and manage all payment transactions</p>
+            </div>
+            <div class="module-actions">
+                <a href="#" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Payment
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>All Payments</h3>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Payment ID</th>
+                                <th>Customer</th>
+                                <th>Method</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>
+                                    <div class="payment-id">
+                                        <span class="id-number">#{{ payment.id }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="customer-info">
+                                        <span class="customer-name">{{ payment.customer_name }}</span>
+                                        <span class="customer-email">{{ payment.customer_email }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="payment-method">{{ payment.get_payment_method_display }}</span>
+                                </td>
+                                <td>
+                                    <span class="amount">${{ payment.amount }}</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ payment.status }}">
+                                        {{ payment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="date">{{ payment.payment_date|date:"M d, Y" }}</span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="#" class="btn btn-icon" title="View Details">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                        </a>
+                                        <a href="#" class="btn btn-icon" title="Edit">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                                <line x1="1" y1="10" x2="23" y2="10"/>
+                                            </svg>
+                                        </div>
+                                        <h3>No payments found</h3>
+                                        <p>Get started by recording your first payment.</p>
+                                        <a href="#" class="btn btn-primary">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 5v14M5 12h14"/>
+                                            </svg>
+                                            Add Payment
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-id {
+    display: flex;
+    align-items: center;
+}
+
+.id-number {
+    font-family: 'Courier New', monospace;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gold);
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-name {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+}
+
+.customer-email {
+    font-size: 0.75rem;
+    color: var(--color-foreground-secondary);
+}
+
+.payment-method {
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+}
+
+.amount {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-success);
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pending {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.status-completed {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-failed {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.date {
+    font-size: 0.875rem;
+    color: var(--color-foreground-secondary);
+}
+
+.table-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.empty-icon {
+    color: var(--color-foreground-tertiary);
+    margin-bottom: var(--spacing-md);
+}
+
+.empty-state h3 {
+    color: var(--color-foreground);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--color-foreground-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+</style>
+{% endblock %} 

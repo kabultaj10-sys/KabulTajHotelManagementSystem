@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System - Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-item {
+            background: #2a2a2a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+        }
+        .success { border-color: #22c55e; }
+        .error { border-color: #ef4444; }
+        .warning { border-color: #f59e0b; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #2563eb; }
+        .custom-select-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+        }
+        .custom-select-button {
+            width: 100%;
+            padding: 8px 12px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        .custom-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            z-index: 1000;
+            display: none;
+        }
+        .custom-select-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style: none;
+        }
+        .custom-select-option:hover {
+            background: #3a3a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Hotel Management System - Module Test</h1>
+        
+        <div class="test-item">
+            <h3>Module Loading Test</h3>
+            <div id="module-test-results"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Component Manager Test</h3>
+            <div>
+                <button onclick="testCustomSelect()">Test Custom Select</button>
+                <button onclick="testTabs()">Test Tabs</button>
+                <button onclick="testNotifications()">Test Notifications</button>
+            </div>
+            <div id="component-test-results"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Configuration Test</h3>
+            <div>
+                <button onclick="testConfig()">Test Config</button>
+                <button onclick="testTheme()">Test Theme</button>
+            </div>
+            <div id="config-test-results"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Data Manager Test</h3>
+            <div>
+                <button onclick="testDataManager()">Test Data Manager</button>
+            </div>
+            <div id="data-test-results"></div>
+        </div>
+        
+        <!-- Test custom select -->
+        <div class="test-item">
+            <h3>Custom Select Test</h3>
+            <select data-custom="true">
+                <option value="1">Option 1</option>
+                <option value="2">Option 2</option>
+                <option value="3">Option 3</option>
+            </select>
+        </div>
+        
+        <!-- Test tabs -->
+        <div class="test-item">
+            <h3>Tabs Test</h3>
+            <div class="tabs">
+                <div class="tab-list">
+                    <button class="tab-trigger active" data-tab="tab1">Tab 1</button>
+                    <button class="tab-trigger" data-tab="tab2">Tab 2</button>
+                </div>
+                <div class="tab-content active" id="tab1-tab">
+                    <p>Content for Tab 1</p>
+                </div>
+                <div class="tab-content" id="tab2-tab">
+                    <p>Content for Tab 2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load modules in correct order -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/errorHandler.js"></script>
+    <script src="scripts/dataManager.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/navigation.js"></script>
+    <script src="scripts/components.js"></script>
+    <script src="scripts/main.js"></script>
+    
+    <script>
+        // Test functions
+        function testModuleLoading() {
+            const results = document.getElementById('module-test-results');
+            const tests = [
+                { name: 'Config Manager', check: () => window.configManager },
+                { name: 'Data Manager', check: () => window.dataManager },
+                { name: 'Error Handler', check: () => window.errorHandler },
+                { name: 'Theme Manager', check: () => window.themeManager },
+                { name: 'Navigation Manager', check: () => window.navigationManager },
+                { name: 'Component Manager', check: () => window.componentManager },
+                { name: 'Hotel App', check: () => window.hotelApp }
+            ];
+            
+            let html = '';
+            tests.forEach(test => {
+                const passed = test.check();
+                html += `<div class="${passed ? 'success' : 'error'}">${test.name}: ${passed ? '✅ Loaded' : '❌ Failed'}</div>`;
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        function testCustomSelect() {
+            const results = document.getElementById('component-test-results');
+            try {
+                const select = document.querySelector('select[data-custom="true"]');
+                if (select && window.componentManager) {
+                    window.componentManager.initializeCustomSelects();
+                    results.innerHTML = '<div class="success">✅ Custom select initialized successfully</div>';
+                } else {
+                    results.innerHTML = '<div class="error">❌ Custom select test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Custom select error: ${error.message}</div>`;
+            }
+        }
+        
+        function testTabs() {
+            const results = document.getElementById('component-test-results');
+            try {
+                if (window.componentManager) {
+                    window.componentManager.initializeTabs();
+                    results.innerHTML = '<div class="success">✅ Tabs initialized successfully</div>';
+                } else {
+                    results.innerHTML = '<div class="error">❌ Tabs test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Tabs error: ${error.message}</div>`;
+            }
+        }
+        
+        function testNotifications() {
+            const results = document.getElementById('component-test-results');
+            try {
+                if (window.componentManager && window.componentManager.showNotification) {
+                    window.componentManager.showNotification('Test notification', 'info');
+                    results.innerHTML = '<div class="success">✅ Notification system working</div>';
+                } else {
+                    results.innerHTML = '<div class="error">❌ Notification test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Notification error: ${error.message}</div>`;
+            }
+        }
+        
+        function testConfig() {
+            const results = document.getElementById('config-test-results');
+            try {
+                if (window.configManager) {
+                    const theme = window.configManager.get('theme');
+                    window.configManager.set('test', 'value');
+                    results.innerHTML = `<div class="success">✅ Config working. Current theme: ${theme}</div>`;
+                } else {
+                    results.innerHTML = '<div class="error">❌ Config test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Config error: ${error.message}</div>`;
+            }
+        }
+        
+        function testTheme() {
+            const results = document.getElementById('config-test-results');
+            try {
+                if (window.themeManager) {
+                    const currentTheme = window.themeManager.getCurrentTheme();
+                    results.innerHTML = `<div class="success">✅ Theme working. Current theme: ${currentTheme}</div>`;
+                } else {
+                    results.innerHTML = '<div class="error">❌ Theme test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Theme error: ${error.message}</div>`;
+            }
+        }
+        
+        function testDataManager() {
+            const results = document.getElementById('data-test-results');
+            try {
+                if (window.dataManager) {
+                    const rooms = window.dataManager.get('rooms');
+                    results.innerHTML = `<div class="success">✅ Data manager working. Rooms count: ${rooms.length}</div>`;
+                } else {
+                    results.innerHTML = '<div class="error">❌ Data manager test failed</div>';
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">❌ Data manager error: ${error.message}</div>`;
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testModuleLoading, 100);
+        });
+    </script>
+</body>
+</html> 

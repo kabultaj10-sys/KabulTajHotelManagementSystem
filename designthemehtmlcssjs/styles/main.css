@@ -1,0 +1,356 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Font Settings */
+    --font-size: 14px;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.625rem;
+    --radius-xl: 0.75rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Transitions */
+--transition-fast: 0s ease-in-out;
+--transition-normal: 0s ease-in-out;
+--transition-slow: 0s ease-in-out;
+    
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    
+    /* Layout */
+    --sidebar-width: 18rem;
+    --topbar-height: 4rem;
+}
+
+/* Light Theme (Default) */
+[data-theme="light"] {
+    /* Background Colors */
+    --color-background: #ffffff;
+    --color-background-secondary: #f8f9fa;
+    --color-background-tertiary: #e9ecef;
+    
+    /* Foreground Colors */
+    --color-foreground: #212529;
+    --color-foreground-secondary: #6c757d;
+    --color-foreground-tertiary: #adb5bd;
+    
+    /* Card Colors */
+    --color-card: #ffffff;
+    --color-card-hover: #f8f9fa;
+    --color-card-border: #e9ecef;
+    
+    /* Primary Colors */
+    --color-primary: #0066cc;
+    --color-primary-hover: #0052a3;
+    --color-primary-light: #cce7ff;
+    --color-primary-foreground: #ffffff;
+    
+    /* Gold Colors */
+    --color-gold: #D4AF37;
+    --color-gold-hover: #b8941f;
+    --color-gold-light: #f5e79e;
+    --color-gold-foreground: #000000;
+    
+    /* Status Colors */
+    --color-success: #28a745;
+    --color-success-light: #d4edda;
+    --color-warning: #ffc107;
+    --color-warning-light: #fff3cd;
+    --color-danger: #dc3545;
+    --color-danger-light: #f8d7da;
+    --color-info: #17a2b8;
+    --color-info-light: #d1ecf1;
+    
+    /* Input Colors */
+    --color-input-background: #f8f9fa;
+    --color-input-border: #ced4da;
+    --color-input-focus: #0066cc;
+    
+    /* Sidebar Colors */
+    --color-sidebar-background: #ffffff;
+    --color-sidebar-border: #e9ecef;
+    --color-sidebar-hover: #f8f9fa;
+    --color-sidebar-active: var(--color-gold);
+    --color-sidebar-active-foreground: var(--color-gold-foreground);
+    
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-gold: 0 4px 14px 0 rgba(212, 175, 55, 0.2);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    /* Background Colors */
+    --color-background: #0f0f0f;
+    --color-background-secondary: #1a1a1a;
+    --color-background-tertiary: #2a2a2a;
+    
+    /* Foreground Colors */
+    --color-foreground: #f5f5f5;
+    --color-foreground-secondary: #888888;
+    --color-foreground-tertiary: #666666;
+    
+    /* Card Colors */
+    --color-card: #1a1a1a;
+    --color-card-hover: #2a2a2a;
+    --color-card-border: #333333;
+    
+    /* Primary Colors */
+    --color-primary: #D4AF37;
+    --color-primary-hover: #FFD700;
+    --color-primary-light: #B8860B;
+    --color-primary-foreground: #0f0f0f;
+    
+    /* Gold Colors */
+    --color-gold: #D4AF37;
+    --color-gold-hover: #FFD700;
+    --color-gold-light: #F7E98E;
+    --color-gold-foreground: #000000;
+    
+    /* Status Colors */
+    --color-success: #22c55e;
+    --color-success-light: rgba(34, 197, 94, 0.2);
+    --color-warning: #f59e0b;
+    --color-warning-light: rgba(245, 158, 11, 0.2);
+    --color-danger: #ef4444;
+    --color-danger-light: rgba(239, 68, 68, 0.2);
+    --color-info: #3b82f6;
+    --color-info-light: rgba(59, 130, 246, 0.2);
+    
+    /* Input Colors */
+    --color-input-background: #2a2a2a;
+    --color-input-border: #333333;
+    --color-input-focus: var(--color-gold);
+    
+    /* Sidebar Colors */
+    --color-sidebar-background: #1a1a1a;
+    --color-sidebar-border: #333333;
+    --color-sidebar-hover: #2a2a2a;
+    --color-sidebar-active: var(--color-gold);
+    --color-sidebar-active-foreground: var(--color-gold-foreground);
+    
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-gold: 0 4px 14px 0 rgba(212, 175, 55, 0.3);
+}
+
+/* Base Styles */
+html {
+    font-size: var(--font-size);
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+    color: var(--color-foreground);
+    background-color: var(--color-background);
+    transition: color var(--transition-normal), background-color var(--transition-normal);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.2;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-foreground);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
+
+p {
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-foreground-secondary);
+}
+
+/* Layout */
+.app {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    transition: background-color var(--transition-normal);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-normal);
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    z-index: var(--z-modal-backdrop);
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (min-width: 1025px) {
+    .sidebar-overlay {
+        display: none;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsive Utilities */
+@media (max-width: 640px) {
+    .hidden-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: 641px) {
+    .mobile-only {
+        display: none !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .hidden-tablet {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .tablet-only {
+        display: none !important;
+    }
+}
+
+/* Smooth Transitions for Theme Changes */
+* {
+    transition: 
+        color var(--transition-normal),
+        background-color var(--transition-normal),
+        border-color var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+/* Focus Styles */
+*:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+    background-color: var(--color-primary-light);
+    color: var(--color-foreground);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--color-background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-foreground-tertiary);
+    border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-foreground-secondary);
+}
+
+/* Print Styles */
+@media print {
+    .sidebar,
+    .topbar,
+    .module-actions,
+    button {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .card {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-lg);
+    }
+}

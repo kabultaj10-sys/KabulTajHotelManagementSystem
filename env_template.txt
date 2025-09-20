@@ -1,0 +1,22 @@
+# Database Configuration
+DB_NAME=kabultaj_hotel
+DB_USER=kabultaj_user
+DB_PASSWORD=kabultaj_password
+DB_HOST=localhost
+DB_PORT=5432
+
+# Django Configuration
+SECRET_KEY=django-insecure-your-secret-key-here-change-in-production
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Static and Media URLs
+STATIC_URL=/static/
+MEDIA_URL=/media/
+
+# Celery Configuration
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+
+# Email Configuration
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend

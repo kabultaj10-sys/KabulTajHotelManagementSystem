@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice {{ invoice.invoice_number }} - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Invoice Details{% endblock %}
+{% block page_subtitle %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Invoice {{ invoice.invoice_number }}</h1>
+                <p>Invoice details and information</p>
+            </div>
+            <div class="module-actions">
+                {% if invoice.status != 'paid' %}
+                <a href="{% url 'payment_complete' invoice.id %}" class="btn btn-primary">
+                    <i class="fas fa-credit-card"></i>
+                    Process Payment
+                </a>
+                {% endif %}
+                <a href="{% url 'invoice_edit' invoice.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit Invoice
+                </a>
+                <a href="{% url 'invoice_print' invoice.id %}" class="btn btn-success" id="download-invoice-btn">
+                    <i class="fas fa-print"></i>
+                    Print Invoice
+                </a>
+                <a href="{% url 'invoice_list' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Invoice Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Invoice Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Invoice Number:</label>
+                        <span>{{ invoice.invoice_number }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Invoice Type:</label>
+                        <span>{{ invoice.get_invoice_type_display }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span class="status-badge status-{{ invoice.status }}">
+                            {{ invoice.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <label>Invoice Date:</label>
+                        <span>{{ invoice.invoice_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Due Date:</label>
+                        <span>{{ invoice.due_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Created By:</label>
+                        <span>{{ invoice.created_by.get_full_name|default:invoice.created_by.username }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Customer Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Customer Name:</label>
+                        <span>{{ invoice.customer_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span>{{ invoice.customer_email|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone:</label>
+                        <span>{{ invoice.customer_phone|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Address:</label>
+                        <span>{{ invoice.customer_address|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Financial Information</h3>
+            </div>
+            <div class="card-content">
+                <div class="financial-grid">
+                    <div class="financial-item">
+                        <label>Subtotal:</label>
+                        <span>${{ invoice.subtotal }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Tax Amount:</label>
+                        <span>${{ invoice.tax_amount }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Discount Amount:</label>
+                        <span>${{ invoice.discount_amount }}</span>
+                    </div>
+                    <div class="financial-item total">
+                        <label>Total Amount:</label>
+                        <span>${{ invoice.total_amount }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Paid Amount:</label>
+                        <span>${{ invoice.paid_amount }}</span>
+                    </div>
+                    <div class="financial-item">
+                        <label>Remaining Amount:</label>
+                        <span>${{ invoice.remaining_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        {% if invoice.notes %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Notes</h3>
+            </div>
+            <div class="card-content">
+                <p>{{ invoice.notes|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Payment History -->
+        {% if invoice.payments.exists %}
+        <div class="card">
+            <div class="card-header">
+                <h3>Payment History</h3>
+            </div>
+            <div class="card-content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Transaction ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in invoice.payments.all %}
+                            <tr>
+                                <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                                <td>${{ payment.amount }}</td>
+                                <td>{{ payment.get_payment_method_display }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ payment.payment_status }}">
+                                        {{ payment.get_payment_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ payment.transaction_id|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.module-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.info-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.info-item span {
+    color: var(--color-foreground);
+    font-size: 1rem;
+}
+
+.financial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.financial-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background-color: var(--color-background-secondary);
+    border-radius: var(--radius-md);
+}
+
+.financial-item.total {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+}
+
+.financial-item label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground-secondary);
+    font-size: 0.875rem;
+}
+
+.financial-item span {
+    color: var(--color-foreground);
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.financial-item.total span {
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background-color: var(--color-background-tertiary);
+    color: var(--color-foreground-secondary);
+}
+
+.status-sent {
+    background-color: var(--color-info-light);
+    color: var(--color-info);
+}
+
+.status-paid {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.status-overdue {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.status-cancelled {
+    background-color: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-foreground);
+    background-color: var(--color-background-secondary);
+}
+
+@media (max-width: 768px) {
+    .module-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .info-grid,
+    .financial-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+<script>
+(function() {
+    try {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('download') === '1') {
+            // Trigger a one-time download via hidden iframe to avoid navigation
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = "{% url 'invoice_print' invoice.id %}";
+            document.body.appendChild(iframe);
+
+            // Clean the URL to prevent duplicate downloads on refresh/back
+            params.delete('download');
+            var cleanUrl = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    } catch (e) {
+        // no-op
+    }
+})();
+</script>
+{% endblock %} 

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Staff Member - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Delete Staff Member{% endblock %}
+{% block page_subtitle %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-center mb-6">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Confirm Deletion</h3>
+            <p class="text-gray-600">Are you sure you want to delete this staff member?</p>
+        </div>
+        
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h4 class="font-medium text-gray-800 mb-2">Staff Member Details:</h4>
+            <div class="space-y-2 text-sm">
+                <div>
+                    <span class="text-gray-600">Name:</span>
+                    <span class="text-gray-900 ml-2">{{ staff.user.get_full_name }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Employee ID:</span>
+                    <span class="text-gray-900 ml-2">{{ staff.employee_id }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Position:</span>
+                    <span class="text-gray-900 ml-2">{{ staff.position }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Department:</span>
+                    <span class="text-gray-900 ml-2">{{ staff.department.name|default:"Not assigned" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <i class="fas fa-info-circle text-red-500 mt-1 mr-3"></i>
+                <div>
+                    <h4 class="text-sm font-medium text-red-800">Warning</h4>
+                    <p class="text-sm text-red-700 mt-1">
+                        This action cannot be undone. All associated data will be permanently deleted.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'staff_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    <i class="fas fa-trash mr-2"></i>Delete Staff Member
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Restaurant Invoices - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Restaurant Invoices{% endblock %}
+{% block page_subtitle %}Restaurant Billing Management{% endblock %}
+
+{% block content %}
+<div class="billing-dashboard">
+    <!-- Header Section -->
+    <div class="billing-header">
+        <div class="billing-header-content">
+            <div class="billing-title">
+                <h1>Restaurant Invoices</h1>
+                <p>Manage and track all restaurant invoices</p>
+            </div>
+            <div class="billing-actions">
+                <a href="{% url 'restaurant:invoice_create' %}" class="btn btn-primary btn-create">
+                    <i class="fas fa-plus"></i>
+                    Create Invoice
+                </a>
+                <a href="{% url 'restaurant:billing_dashboard' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <h3>Filters</h3>
+            <p>Refine your invoice search</p>
+        </div>
+        <form method="get" class="filters-form">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="sent" {% if request.GET.status == 'sent' %}selected{% endif %}>Sent</option>
+                        <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                        <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="customer">Customer</label>
+                    <input type="text" name="customer" id="customer" value="{{ request.GET.customer }}" 
+                           class="form-input" placeholder="Search by customer name">
+                </div>
+                <div class="form-group">
+                    <label for="date_from">Date From</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ request.GET.date_from }}" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="date_to">Date To</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ request.GET.date_to }}" class="form-input">
+                </div>
+            </div>
+            <div class="filters-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Apply Filters
+                </button>
+                <a href="{% url 'restaurant:invoice_list' %}" class="btn btn-outline">
+                    <i class="fas fa-times"></i>
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Invoices Table Section -->
+    <div class="transactions-section">
+        <div class="transactions-header">
+            <div class="transactions-title">
+                <h3>Invoices</h3>
+                <p>All restaurant invoices ({{ invoices|length }})</p>
+            </div>
+        </div>
+        
+        <div class="transactions-table-container">
+            <table class="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Order #</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>
+                            <div class="invoice-id">
+                                <a href="{% url 'restaurant:invoice_detail' invoice.pk %}">
+                                    {{ invoice.invoice_number }}
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">{{ invoice.customer_name }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="order-number">{{ invoice.order.order_number }}</div>
+                        </td>
+                        <td>
+                            <div class="amount">${{ invoice.total_amount|floatformat:2 }}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ invoice.status }}">
+                                {{ invoice.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="date">{{ invoice.created_at|date:"M d, Y" }}</div>
+                        </td>
+                        <td>
+                            <div class="due-date {% if invoice.is_overdue %}overdue{% endif %}">
+                                {{ invoice.due_date|date:"M d, Y" }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'restaurant:invoice_detail' invoice.pk %}" class="btn-icon" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'restaurant:invoice_edit' invoice.pk %}" class="btn-icon" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'restaurant:invoice_print' invoice.pk %}" class="btn-icon" title="Print">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                <div class="dropdown-actions">
+                                    <button type="button" class="btn-icon dropdown-toggle" title="More Actions">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="{% url 'restaurant:invoice_update_status' invoice.pk %}">
+                                            <i class="fas fa-edit"></i> Update Status
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item dropdown-item-danger" href="{% url 'restaurant:invoice_delete' invoice.pk %}" 
+                                           onclick="return confirm('Are you sure you want to delete this invoice?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-receipt"></i>
+                                </div>
+                                <h3>No invoices found</h3>
+                                <p>Get started by creating your first restaurant invoice.</p>
+                                <a href="{% url 'restaurant:invoice_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Create Your First Invoice
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        
+    </div>
+</div>
+{% endblock %}

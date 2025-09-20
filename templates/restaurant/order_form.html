@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                {{ title }}
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Create a new restaurant order
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post" id="orderForm" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+        {% csrf_token %}
+        
+        <!-- Order Information -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg);">
+            <!-- Table Selection -->
+            <div>
+                <label for="table" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Table *
+                </label>
+                <select name="table" id="table" required style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                    <option value="">Select table</option>
+                    {% for table in tables %}
+                    <option value="{{ table.id }}">Table {{ table.table_number }} ({{ table.capacity }} seats)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Customer Type -->
+            <div>
+                <label for="customer_type" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Customer Type
+                </label>
+                <select name="customer_type" id="customer_type" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                    <option value="walk_in">Walk-in Customer</option>
+                    <option value="guest">Hotel Guest</option>
+                    <option value="room">Room Service</option>
+                </select>
+            </div>
+
+            <!-- Guest Selection -->
+            <div id="guestSection" style="display: none;">
+                <label for="guest" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Guest
+                </label>
+                <select name="guest" id="guest" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                    <option value="">Select guest</option>
+                    {% for guest in guests %}
+                    <option value="{{ guest.id }}">{{ guest.full_name }} ({{ guest.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Room Selection -->
+            <div id="roomSection" style="display: none;">
+                <label for="room" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Room
+                </label>
+                <select name="room" id="room" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                    <option value="">Select room</option>
+                    {% for room in rooms %}
+                    <option value="{{ room.id }}">Room {{ room.room_number }} ({{ room.room_type }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Customer Name -->
+            <div id="customerNameSection">
+                <label for="guest_name" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Customer Name
+                </label>
+                <input type="text" name="guest_name" id="guest_name" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;" placeholder="Enter customer name">
+            </div>
+
+            <!-- Customer Phone -->
+            <div id="customerPhoneSection">
+                <label for="guest_phone" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Phone Number
+                </label>
+                <input type="text" name="guest_phone" id="guest_phone" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;" placeholder="Enter phone number">
+            </div>
+        </div>
+
+        <!-- Special Instructions -->
+        <div>
+            <label for="special_instructions" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                Special Instructions
+            </label>
+            <textarea name="special_instructions" id="special_instructions" rows="3" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; resize: vertical;" placeholder="Any special instructions for the order"></textarea>
+        </div>
+
+        <!-- Menu Items Selection -->
+        <div class="card" style="background-color: var(--color-background-secondary);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+                Menu Items
+            </h3>
+            
+            <!-- Category Filter -->
+            <div style="margin-bottom: var(--spacing-lg);">
+                <label for="category_filter" style="display: block; font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                    Filter by Category
+                </label>
+                <select name="category_filter" id="category_filter" style="width: 100%; max-width: 300px; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+                    <option value="">All Categories</option>
+                    {% for category in menu_items|slice:":1" %}
+                    <option value="{{ category.category.id }}">{{ category.category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Menu Items Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                {% for item in menu_items %}
+                <div class="menu-item" data-item-id="{{ item.id }}" data-item-name="{{ item.name }}" data-item-price="{{ item.price }}" data-item-category="{{ item.category.id }}" style="padding: var(--spacing-md); background-color: var(--color-card); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                        <div style="width: 3rem; height: 3rem; background-color: var(--color-background-tertiary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-utensils" style="color: var(--color-foreground-tertiary);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">
+                                {{ item.name }}
+                            </h4>
+                            <p style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                                {{ item.category.name }}
+                            </p>
+                            <p style="font-weight: var(--font-weight-semibold); color: var(--color-gold); font-size: 0.875rem;">
+                                ${{ item.price }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Selected Items -->
+            <div>
+                <h4 style="font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                    Selected Items
+                </h4>
+                <div id="selectedItems" style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                    <!-- Selected items will be added here dynamically -->
+                </div>
+                <input type="hidden" name="items" id="itemsData" value="[]">
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="card" style="background-color: var(--color-background-secondary);">
+            <h4 style="font-weight: var(--font-weight-medium); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                Order Summary
+            </h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--color-foreground-secondary); font-size: 0.875rem;">Total Items:</span>
+                <span id="totalItems" style="font-weight: var(--font-weight-semibold); color: var(--color-foreground);">0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-sm);">
+                <span style="color: var(--color-foreground-secondary); font-size: 0.875rem;">Total Amount:</span>
+                <span id="totalAmount" style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-gold);">$0.00</span>
+            </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div style="display: flex; justify-content: end; gap: var(--spacing-md);">
+            <a href="{% url 'restaurant:order_list' %}" class="btn btn-outline">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Create Order
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+let selectedItems = [];
+
+// Customer type change handler
+document.getElementById('customer_type').addEventListener('change', function() {
+    const guestSection = document.getElementById('guestSection');
+    const roomSection = document.getElementById('roomSection');
+    const customerNameSection = document.getElementById('customerNameSection');
+    const customerPhoneSection = document.getElementById('customerPhoneSection');
+    const guestSelect = document.getElementById('guest');
+    const roomSelect = document.getElementById('room');
+    const guestNameInput = document.getElementById('guest_name');
+    const guestPhoneInput = document.getElementById('guest_phone');
+    const guestNameLabel = document.querySelector('label[for="guest_name"]');
+    
+    // Reset all sections
+    guestSection.style.display = 'none';
+    roomSection.style.display = 'none';
+    guestSelect.value = '';
+    roomSelect.value = '';
+    
+    // Show/hide customer name and phone fields based on customer type
+    if (this.value === 'walk_in') {
+        // Walk-in Customer: Show customer name and phone fields, but make them optional
+        customerNameSection.style.display = 'block';
+        customerPhoneSection.style.display = 'block';
+        guestNameInput.required = false;
+        guestNameLabel.textContent = 'Customer Name';
+        guestNameInput.placeholder = 'Enter customer name (optional)';
+        guestPhoneInput.placeholder = 'Enter phone number (optional)';
+    } else if (this.value === 'guest') {
+        // Hotel Guest: Show guest selection, hide customer name/phone initially
+        guestSection.style.display = 'block';
+        customerNameSection.style.display = 'none';
+        customerPhoneSection.style.display = 'none';
+        guestNameInput.required = false;
+        guestNameInput.value = '';
+        guestPhoneInput.value = '';
+    } else if (this.value === 'room') {
+        // Room Service: Show room selection, hide customer name/phone initially
+        roomSection.style.display = 'block';
+        customerNameSection.style.display = 'none';
+        customerPhoneSection.style.display = 'none';
+        guestNameInput.required = false;
+        guestNameInput.value = '';
+        guestPhoneInput.value = '';
+    }
+});
+
+// Guest selection handler
+document.getElementById('guest').addEventListener('change', function() {
+    const guestNameInput = document.getElementById('guest_name');
+    const guestPhoneInput = document.getElementById('guest_phone');
+    const customerNameSection = document.getElementById('customerNameSection');
+    const customerPhoneSection = document.getElementById('customerPhoneSection');
+    const guestNameLabel = document.querySelector('label[for="guest_name"]');
+    
+    if (this.value) {
+        // Show customer name and phone fields when guest is selected
+        customerNameSection.style.display = 'block';
+        customerPhoneSection.style.display = 'block';
+        
+        // Get guest data from the selected option
+        const selectedOption = this.options[this.selectedIndex];
+        const guestName = selectedOption.text.split(' (')[0]; // Extract name before email
+        
+        // Populate the fields
+        guestNameInput.value = guestName;
+        guestNameInput.required = true;
+        guestNameLabel.textContent = 'Customer Name *';
+        guestPhoneInput.placeholder = 'Enter phone number';
+    } else {
+        // Clear fields when no guest is selected
+        guestNameInput.value = '';
+        guestPhoneInput.value = '';
+        guestNameInput.required = false;
+        guestNameLabel.textContent = 'Customer Name';
+    }
+});
+
+// Room selection handler
+document.getElementById('room').addEventListener('change', function() {
+    const guestNameInput = document.getElementById('guest_name');
+    const guestPhoneInput = document.getElementById('guest_phone');
+    const customerNameSection = document.getElementById('customerNameSection');
+    const customerPhoneSection = document.getElementById('customerPhoneSection');
+    const guestNameLabel = document.querySelector('label[for="guest_name"]');
+    
+    if (this.value) {
+        // Show customer name and phone fields when room is selected
+        customerNameSection.style.display = 'block';
+        customerPhoneSection.style.display = 'block';
+        
+        // Clear fields for room service
+        guestNameInput.value = '';
+        guestPhoneInput.value = '';
+        guestNameInput.required = true;
+        guestNameLabel.textContent = 'Customer Name *';
+        guestNameInput.placeholder = 'Enter customer name';
+        guestPhoneInput.placeholder = 'Enter phone number';
+    } else {
+        // Clear fields when no room is selected
+        guestNameInput.value = '';
+        guestPhoneInput.value = '';
+        guestNameInput.required = false;
+        guestNameLabel.textContent = 'Customer Name';
+    }
+});
+
+// Menu item click handler
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const itemId = this.dataset.itemId;
+        const itemName = this.dataset.itemName;
+        const itemPrice = parseFloat(this.dataset.itemPrice);
+        
+        // Check if item is already selected
+        const existingItem = selectedItems.find(item => item.menu_item_id === itemId);
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            selectedItems.push({
+                menu_item_id: itemId,
+                name: itemName,
+                price: itemPrice,
+                quantity: 1,
+                special_instructions: ''
+            });
+        }
+        
+        updateSelectedItemsDisplay();
+    });
+});
+
+// Category filter
+document.getElementById('category_filter').addEventListener('change', function() {
+    const categoryId = this.value;
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    menuItems.forEach(item => {
+        if (!categoryId || item.dataset.itemCategory === categoryId) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+
+function updateSelectedItemsDisplay() {
+    const container = document.getElementById('selectedItems');
+    const itemsData = document.getElementById('itemsData');
+    const totalItemsSpan = document.getElementById('totalItems');
+    const totalAmountSpan = document.getElementById('totalAmount');
+    
+    container.innerHTML = '';
+    let totalItems = 0;
+    let totalAmount = 0;
+    
+    selectedItems.forEach((item, index) => {
+        totalItems += item.quantity;
+        totalAmount += item.quantity * item.price;
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-card); border-radius: var(--radius-md); border: 1px solid var(--color-card-border);';
+        itemDiv.innerHTML = `
+            <div style="flex: 1;">
+                <h6 style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem; margin-bottom: var(--spacing-xs);">${item.name}</h6>
+                <p style="color: var(--color-foreground-secondary); font-size: 0.75rem;">$${item.price} each</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                <button type="button" onclick="updateQuantity(${index}, -1)" style="padding: 0.25rem 0.5rem; background-color: var(--color-background-tertiary); border: none; border-radius: var(--radius-sm); color: var(--color-foreground); cursor: pointer;">-</button>
+                <span style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">${item.quantity}</span>
+                <button type="button" onclick="updateQuantity(${index}, 1)" style="padding: 0.25rem 0.5rem; background-color: var(--color-background-tertiary); border: none; border-radius: var(--radius-sm); color: var(--color-foreground); cursor: pointer;">+</button>
+                <button type="button" onclick="removeItem(${index})" style="padding: 0.25rem 0.5rem; background-color: var(--color-danger-light); border: none; border-radius: var(--radius-sm); color: var(--color-danger); cursor: pointer;">×</button>
+            </div>
+        `;
+        container.appendChild(itemDiv);
+    });
+    
+    totalItemsSpan.textContent = totalItems;
+    totalAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
+    itemsData.value = JSON.stringify(selectedItems);
+}
+
+function updateQuantity(index, change) {
+    selectedItems[index].quantity += change;
+    if (selectedItems[index].quantity <= 0) {
+        selectedItems.splice(index, 1);
+    }
+    updateSelectedItemsDisplay();
+}
+
+function removeItem(index) {
+    selectedItems.splice(index, 1);
+    updateSelectedItemsDisplay();
+}
+
+// Form submission
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    if (selectedItems.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one menu item.');
+        return;
+    }
+});
+
+// Initialize form state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Trigger the customer type change handler to set initial state
+    const customerTypeSelect = document.getElementById('customer_type');
+    if (customerTypeSelect) {
+        customerTypeSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %} 

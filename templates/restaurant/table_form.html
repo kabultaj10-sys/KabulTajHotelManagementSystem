@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <!-- Header -->
+        <div class="form-header">
+            <div class="header-main">
+                <div class="header-content">
+                    <h1 class="header-title">{{ title }}</h1>
+                    <p class="header-subtitle">
+                        {% if table.pk %}
+                            Update table details and operational status
+                        {% else %}
+                            Create a new table for the restaurant
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <a href="{% url 'restaurant:table_list' %}" class="btn btn-outline">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Back to Tables</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <form method="post" class="table-form">
+                {% csrf_token %}
+
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <h3>Basic Information</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <!-- Table Number -->
+                        <div class="form-group">
+                            <label for="table_number" class="form-label">Table Number *</label>
+                            <input type="text" name="table_number" id="table_number" value="{{ table.table_number|default:'' }}"
+                                   class="form-input" placeholder="e.g., T1, T2, VIP1" required>
+                            <p class="form-hint">Unique identifier for the table</p>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="form-group">
+                            <label for="capacity" class="form-label">Capacity *</label>
+                            <input type="number" name="capacity" id="capacity" value="{{ table.capacity|default:4 }}"
+                                   class="form-input" placeholder="Number of seats" min="1" max="20" required>
+                            <p class="form-hint">Maximum number of guests</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location & Status -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M21 10c0 5-9 12-9 12S3 15 3 10a9 9 0 1 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        <h3>Location & Status</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" name="location" id="location" value="{{ table.location|default:'' }}"
+                                   class="form-input" placeholder="e.g., Garden View, Window Side, VIP Area">
+                            <p class="form-hint">Table location description</p>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if table.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="status-legend">
+                                <span class="legend-dot legend-available"></span>
+                                <span>Available</span>
+                                <span class="legend-dot legend-occupied"></span>
+                                <span>Occupied</span>
+                                <span class="legend-dot legend-out_of_order"></span>
+                                <span>Out of Order</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operational Settings -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 9 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 20.91 11H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </div>
+                        <h3>Operational Settings</h3>
+                    </div>
+
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="is_active" id="is_active" class="form-checkbox"
+                               {% if table.is_active or not table.pk %}checked{% endif %}>
+                        <label for="is_active" class="checkbox-label">
+                            <span class="checkbox-icon">✅</span>
+                            Table is active and available for use
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'restaurant:table_list' %}" class="btn btn-outline">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17,21 17,13 7,13 7,21"/>
+                            <polyline points="7,3 7,8 15,8"/>
+                        </svg>
+                        <span>{% if table.pk %}Update{% else %}Create{% endif %} Table</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Header */
+.form-header {
+    background: linear-gradient(135deg, var(--color-card) 0%, var(--color-background-secondary) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-card-border);
+    box-shadow: var(--shadow-sm);
+}
+
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+}
+
+.header-title {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+    margin: 0 0 var(--spacing-xs) 0;
+}
+
+.header-subtitle {
+    color: var(--color-foreground-secondary);
+    font-size: 1rem;
+}
+
+.header-actions { display: flex; gap: var(--spacing-md); }
+
+/* Form Container */
+.form-container {
+    background: var(--color-card);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table-form { padding: var(--spacing-xl); }
+
+/* Sections */
+.form-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+    border-bottom: 1px solid var(--color-card-border);
+}
+.form-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.section-header { display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.section-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-gold) 0%, #B8860B 100%);
+    color: white;
+}
+.section-header h3 { margin: 0; color: var(--color-foreground); font-weight: var(--font-weight-semibold); font-size: 1.25rem; }
+
+/* Grid */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg); }
+
+/* Inputs */
+.form-group { display: flex; flex-direction: column; }
+.form-label { color: var(--color-foreground); font-size: 0.875rem; font-weight: var(--font-weight-medium); margin-bottom: var(--spacing-sm); }
+.form-input, .form-select, .form-textarea {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-md);
+    background: var(--color-background-secondary);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+.form-hint { color: var(--color-foreground-tertiary); font-size: 0.75rem; margin-top: var(--spacing-xs); }
+
+/* Checkbox */
+.checkbox-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+.form-checkbox { width: 18px; height: 18px; accent-color: var(--color-gold); cursor: pointer; }
+.checkbox-label { display: flex; align-items: center; gap: var(--spacing-sm); color: var(--color-foreground); font-size: 0.875rem; cursor: pointer; }
+.checkbox-icon { font-size: 1rem; }
+
+/* Status legend */
+.status-legend { display: flex; align-items: center; gap: var(--spacing-sm); margin-top: var(--spacing-sm); color: var(--color-foreground-secondary); font-size: 0.75rem; }
+.legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 9999px; margin-right: var(--spacing-xs); }
+.legend-available { background-color: var(--color-success); }
+.legend-occupied { background-color: var(--color-warning); }
+.legend-out_of_order { background-color: var(--color-danger); }
+
+/* Actions */
+.form-actions { display: flex; justify-content: flex-end; gap: var(--spacing-md); padding-top: var(--spacing-xl); border-top: 1px solid var(--color-card-border); margin-top: var(--spacing-xl); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-main { flex-direction: column; gap: var(--spacing-lg); }
+    .header-title { font-size: 1.5rem; }
+    .table-form { padding: var(--spacing-lg); }
+    .form-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %} 

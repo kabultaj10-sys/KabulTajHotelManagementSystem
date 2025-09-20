@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Staff Management
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Manage staff profiles, roles, and permissions
+            </p>
+        </div>
+        <div style="display: flex; gap: var(--spacing-md);">
+            <a href="{% url 'staff_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add Staff
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon gold">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number">{{ total_staff|default:0 }}</div>
+        <div class="stat-label">Total Staff</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-number">{{ active_staff|default:0 }}</div>
+        <div class="stat-label">Active Staff</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-info); color: white;">
+            <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="stat-number">{{ managers|default:0 }}</div>
+        <div class="stat-label">Managers</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-warning); color: white;">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="stat-number">{{ new_this_month|default:0 }}</div>
+        <div class="stat-label">New This Month</div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="card">
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+            Search & Filters
+        </h3>
+        
+        <form method="get" style="display: flex; flex-wrap: wrap; gap: var(--spacing-md); align-items: center;">
+            <div style="position: relative; flex: 1; min-width: 200px;">
+                <input type="text" name="search" value="{{ search }}" 
+                       placeholder="Search staff..." 
+                       style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+            </div>
+            
+            <select name="department" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Departments</option>
+                <option value="front_office" {% if department == 'front_office' %}selected{% endif %}>Front Office</option>
+                <option value="housekeeping" {% if department == 'housekeeping' %}selected{% endif %}>Housekeeping</option>
+                <option value="restaurant" {% if department == 'restaurant' %}selected{% endif %}>Restaurant</option>
+                <option value="maintenance" {% if department == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                <option value="management" {% if department == 'management' %}selected{% endif %}>Management</option>
+            </select>
+            
+            <select name="status" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Status</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                <option value="on_leave" {% if status == 'on_leave' %}selected{% endif %}>On Leave</option>
+            </select>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Staff Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: var(--spacing-lg);">
+    {% for staff in page_obj %}
+    <div class="card" style="transition: all var(--transition-fast);">
+        <!-- Staff Header -->
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md);">
+            <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <div style="width: 3rem; height: 3rem; background-color: var(--color-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-gold-foreground); font-weight: var(--font-weight-semibold); font-size: 0.875rem;">
+                    {{ staff.first_name|first }}{{ staff.last_name|first }}
+                </div>
+                <div>
+                    <h3 style="font-size: 1.125rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                        {{ staff.full_name }}
+                    </h3>
+                    <p style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                        {{ staff.get_department_display }}
+                    </p>
+                </div>
+            </div>
+            <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                {% if staff.status == 'active' %}background-color: var(--color-success-light); color: var(--color-success);
+                {% elif staff.status == 'inactive' %}background-color: var(--color-danger-light); color: var(--color-danger);
+                {% elif staff.status == 'on_leave' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                {% else %}background-color: var(--color-background-tertiary); color: var(--color-foreground-secondary);{% endif %}">
+                {{ staff.get_status_display }}
+            </span>
+        </div>
+        
+        <!-- Staff Details -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Position
+                </div>
+                <div style="color: var(--color-foreground); font-size: 0.875rem; font-weight: var(--font-weight-medium);">
+                    {{ staff.position }}
+                </div>
+            </div>
+            
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Employee ID
+                </div>
+                <div style="color: var(--color-foreground); font-size: 0.875rem;">
+                    {{ staff.employee_id }}
+                </div>
+            </div>
+            
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Email
+                </div>
+                <div style="color: var(--color-foreground); font-size: 0.875rem;">
+                    {{ staff.email }}
+                </div>
+            </div>
+            
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Phone
+                </div>
+                <div style="color: var(--color-foreground); font-size: 0.875rem;">
+                    {{ staff.phone }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Info -->
+        {% if staff.hire_date or staff.salary %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            {% if staff.hire_date %}
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Hire Date
+                </div>
+                <div style="color: var(--color-foreground); font-size: 0.875rem;">
+                    {{ staff.hire_date|date:"M d, Y" }}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if staff.salary %}
+            <div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem; margin-bottom: var(--spacing-xs);">
+                    Salary
+                </div>
+                <div style="color: var(--color-gold); font-size: 0.875rem; font-weight: var(--font-weight-semibold);">
+                    ${{ staff.salary }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Actions -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: var(--spacing-sm);">
+                <a href="{% url 'staff_detail' staff.pk %}" style="color: var(--color-success); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'staff_edit' staff.pk %}" style="color: var(--color-info); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'staff_delete' staff.pk %}" style="color: var(--color-danger); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            <span style="font-size: 0.75rem; color: var(--color-foreground-tertiary);">
+                {{ staff.created_at|date:"M d, Y" }}
+            </span>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1;">
+        <div class="card" style="text-align: center; padding: var(--spacing-2xl);">
+            <i class="fas fa-users" style="font-size: 4rem; color: var(--color-foreground-tertiary); margin-bottom: var(--spacing-lg);"></i>
+            <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-md);">
+                No staff found
+            </h3>
+            <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                Get started by adding your first staff member.
+            </p>
+            <a href="{% url 'staff_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add Staff
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div style="display: flex; justify-content: center; margin-top: var(--spacing-xl);">
+    <nav style="display: flex; gap: var(--spacing-sm);">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department %}&department={{ department }}{% endif %}{% if status %}&status={{ status }}{% endif %}" 
+           class="btn btn-outline">
+            Previous
+        </a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="btn btn-primary">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if department %}&department={{ department }}{% endif %}{% if status %}&status={{ status }}{% endif %}" 
+               class="btn btn-outline">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department %}&department={{ department }}{% endif %}{% if status %}&status={{ status }}{% endif %}" 
+           class="btn btn-outline">
+            Next
+        </a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,955 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking {{ booking.booking_number }} - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<div class="booking-detail-container">
+    <!-- Header Section -->
+    <div class="booking-header">
+        <div class="header-content">
+            <div class="booking-title">
+                <h1>Booking #{{ booking.booking_number }}</h1>
+                <div class="booking-meta">
+                    <span class="created-date">Created: {{ booking.created_at|date:"M d, Y" }}</span>
+                    <span class="source-badge">{{ booking.get_source_display }}</span>
+                </div>
+            </div>
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-label">Status:</span>
+                    <span class="status-badge status-{{ booking.status }}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Payment:</span>
+                    <span class="status-badge status-{{ booking.payment_status }}">
+                        {{ booking.get_payment_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'booking_edit' booking.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'booking_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Duration</h3>
+                <div class="metric-value">{{ booking.duration }} Days</div>
+                <div class="metric-subtitle">{{ booking.check_in_date|date:"M d" }} - {{ booking.check_out_date|date:"M d, Y" }}</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Guests</h3>
+                <div class="metric-value">{{ booking.number_of_guests }}</div>
+                <div class="metric-subtitle">People</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Amount</h3>
+                <div class="metric-value">${{ booking.total_amount }}</div>
+                <div class="metric-subtitle">Total Cost</div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Payment Progress</h3>
+                <div class="metric-value">${{ total_paid }} of ${{ booking.total_amount }}</div>
+                <div class="metric-subtitle">{% widthratio total_paid booking.total_amount 100 %}% Paid</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-grid">
+        <!-- Left Column -->
+        <div class="content-main">
+            <!-- Guest Information -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Guest Information</h3>
+                </div>
+                <div class="section-body">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <label>Full Name:</label>
+                            <span>{{ booking.guest.full_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Email:</label>
+                            <span>{{ booking.guest.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone:</label>
+                            <span>{{ booking.guest.phone }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Nationality:</label>
+                            <span>{{ booking.guest.nationality|default:"Not specified" }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if booking.guest_names %}
+                    <div class="additional-info">
+                        <h4>Additional Guests</h4>
+                        <div class="guest-names">{{ booking.guest_names|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Room Information -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-bed"></i>
+                    <h3>Room Details</h3>
+                </div>
+                <div class="section-body">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <label>Room Number:</label>
+                            <span>{{ booking.room.room_number }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Room Type:</label>
+                            <span>{{ booking.room.room_type.name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Floor:</label>
+                            <span>Floor {{ booking.room.floor }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Rate:</label>
+                            <span>${{ booking.room_rate }} per night</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Requirements -->
+            {% if booking.special_requests or booking.dietary_restrictions or booking.room_preferences %}
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-star"></i>
+                    <h3>Special Requirements</h3>
+                </div>
+                <div class="section-body">
+                    {% if booking.special_requests %}
+                    <div class="requirement-item">
+                        <h4>Special Requests</h4>
+                        <p>{{ booking.special_requests|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if booking.dietary_restrictions %}
+                    <div class="requirement-item">
+                        <h4>Dietary Restrictions</h4>
+                        <p>{{ booking.dietary_restrictions|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if booking.room_preferences %}
+                    <div class="requirement-item">
+                        <h4>Room Preferences</h4>
+                        <p>{{ booking.room_preferences|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div class="sidebar-content">
+            <!-- Timeline -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-clock"></i>
+                    <h3>Timeline</h3>
+                </div>
+                <div class="section-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-label">Check-in</div>
+                            <div class="timeline-date">{{ booking.check_in_date|date:"M d, Y" }}</div>
+                            <div class="timeline-time">{{ booking.check_in_time|time:"H:i" }}</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-label">Check-out</div>
+                            <div class="timeline-date">{{ booking.check_out_date|date:"M d, Y" }}</div>
+                            <div class="timeline-time">{{ booking.check_out_time|time:"H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-receipt"></i>
+                    <h3>Payment Summary</h3>
+                </div>
+                <div class="section-body">
+                    <div class="payment-breakdown">
+                        <div class="payment-row">
+                            <span>Room Rate:</span>
+                            <span>${{ booking.room_rate }}</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Nights:</span>
+                            <span>{{ booking.duration }}</span>
+                        </div>
+                        <div class="payment-row total">
+                            <span>Total:</span>
+                            <span>${{ booking.total_amount }}</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Deposit:</span>
+                            <span>${{ booking.deposit_amount }}</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Balance:</span>
+                            <span>${{ booking.balance_amount }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if total_paid > 0 %}
+                    <div class="payment-progress">
+                        <div class="progress-header">
+                            <span>Payment Progress</span>
+                            <span class="progress-percent">{% widthratio total_paid booking.total_amount 100 %}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {% widthratio total_paid booking.total_amount 100 %}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            {% if payments %}
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-history"></i>
+                    <h3>Payment History</h3>
+                </div>
+                <div class="section-body">
+                    <div class="payment-history">
+                        {% for payment in payments %}
+                        <div class="payment-record">
+                            <div class="payment-amount">${{ payment.amount }}</div>
+                            <div class="payment-date">{{ payment.payment_date|date:"M d, Y" }}</div>
+                            <div class="payment-method">{{ payment.get_payment_method_display }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Check-in/Check-out Status -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Check-in/Check-out</h3>
+                </div>
+                <div class="section-body">
+                    <div class="check-status">
+                        <div class="status-item">
+                            <span class="status-label">Check-in:</span>
+                            {% if check_in %}
+                                <span class="status-success">✓ Completed</span>
+                            {% else %}
+                                <span class="status-pending">⏳ Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Check-out:</span>
+                            {% if check_out %}
+                                <span class="status-success">✓ Completed</span>
+                            {% else %}
+                                <span class="status-pending">⏳ Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        {% if not check_in and booking.status in 'confirmed,pending' %}
+                            <a href="{% url 'check_in_create' booking.id %}" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Check In
+                            </a>
+                        {% elif check_in and not check_out and booking.status == 'active' %}
+                            <a href="{% url 'check_out_create' booking.id %}" class="btn btn-warning">
+                                <i class="fas fa-sign-out-alt"></i> Check Out
+                            </a>
+                        {% elif check_out %}
+                            <span class="btn btn-disabled">
+                                <i class="fas fa-check"></i> Process Complete
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* CSS Variables */
+:root {
+    --primary-color: #D4AF37;
+    --primary-hover: #FFD700;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #2a2a2a;
+    --text-primary: #f5f5f5;
+    --text-secondary: #888888;
+    --text-tertiary: #666666;
+    --border-color: #333333;
+    --shadow-light: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-medium: 0 4px 6px rgba(0,0,0,0.15);
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* Container */
+.booking-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* Header */
+.booking-header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-medium);
+}
+
+.header-content {
+    flex: 1;
+}
+
+.booking-title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.booking-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.created-date {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.source-badge {
+    background: var(--primary-color);
+    color: var(--bg-primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-info {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.status-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Buttons */
+.btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--bg-primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.metric-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-color);
+    color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.metric-content h3 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.metric-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.content-main, .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Content Sections */
+.content-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+}
+
+.section-header {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.section-header i {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.section-body {
+    padding: var(--spacing-lg);
+}
+
+/* Info Lists */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.info-item span {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Additional Info */
+.additional-info {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.additional-info h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.guest-names {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--primary-color);
+    color: var(--text-primary);
+}
+
+/* Timeline */
+.timeline {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.timeline-item {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.timeline-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.timeline-date {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.timeline-time {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Payment Breakdown */
+.payment-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) 0;
+}
+
+.payment-row.total {
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    padding: var(--spacing-sm) 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.payment-row span:first-child {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.payment-row span:last-child {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Payment Progress */
+.payment-progress {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.progress-header span:first-child {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.progress-percent {
+    color: var(--success-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-color) 0%, #16a34a 100%);
+    transition: width 0.3s ease;
+}
+
+/* Payment History */
+.payment-history {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.payment-record {
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.payment-amount {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.payment-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.payment-method {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Check Status */
+.check-status {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.check-status .status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-disabled {
+    background: var(--text-tertiary);
+    color: var(--text-secondary);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.status-success {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.status-pending {
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pending {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning-color);
+}
+
+.status-confirmed {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--info-color);
+}
+
+.status-active {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success-color);
+}
+
+.status-completed {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success-color);
+}
+
+.status-cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger-color);
+}
+
+.status-paid {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success-color);
+}
+
+.status-partial {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning-color);
+}
+
+/* Requirements */
+.requirement-item {
+    margin-bottom: var(--spacing-lg);
+}
+
+.requirement-item:last-child {
+    margin-bottom: 0;
+}
+
+.requirement-item h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.requirement-item p {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--primary-color);
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .booking-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .header-actions {
+        justify-content: center;
+    }
+    
+    .status-info {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-detail-container {
+        padding: var(--spacing-md);
+    }
+    
+    .booking-header {
+        padding: var(--spacing-lg);
+    }
+    
+    .booking-title h1 {
+        font-size: 2rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn {
+        justify-content: center;
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

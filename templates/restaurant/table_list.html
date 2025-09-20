@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}Tables - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Table Management
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Manage restaurant tables and their status.
+            </p>
+            </div>
+        <div style="display: flex; gap: var(--spacing-md);">
+                <a href="{% url 'restaurant:table_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                    Add Table
+                </a>
+        </div>
+            </div>
+        </div>
+
+<!-- Table Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+        <div class="stat-icon gold">
+            <i class="fas fa-table"></i>
+        </div>
+        <div class="stat-number">{{ total_tables }}</div>
+        <div class="stat-label">Total Tables</div>
+                </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+            <i class="fas fa-check-circle"></i>
+                </div>
+        <div class="stat-number">{{ available_tables }}</div>
+        <div class="stat-label">Available</div>
+            </div>
+            <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-warning); color: white;">
+            <i class="fas fa-chair"></i>
+                </div>
+        <div class="stat-number">{{ occupied_tables }}</div>
+        <div class="stat-label">Occupied</div>
+            </div>
+            <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-danger); color: white;">
+            <i class="fas fa-tools"></i>
+                </div>
+        <div class="stat-number">{{ out_of_order_tables }}</div>
+        <div class="stat-label">Out of Order</div>
+                </div>
+            </div>
+            
+<!-- Search and Filters -->
+<div class="card">
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+            Search & Filters
+        </h3>
+        <form method="get" style="display: flex; flex-wrap: wrap; gap: var(--spacing-md); align-items: center;">
+            <div style="position: relative; flex: 1; min-width: 200px;">
+                <input type="text" name="search" value="{{ request.GET.search }}"
+                       placeholder="Search by table number or location..."
+                       style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem;">
+            </div>
+            <select name="status" style="padding: var(--spacing-sm) var(--spacing-md); background-color: var(--color-input-background); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); color: var(--color-foreground); font-size: 0.875rem; min-width: 150px;">
+                <option value="">All Status</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
+            {% if request.GET.search or request.GET.status %}
+            <a href="{% url 'restaurant:table_list' %}" class="btn btn-outline">
+                <i class="fas fa-times"></i>
+                Clear
+            </a>
+            {% endif %}
+        </form>
+            </div>
+        </div>
+
+<!-- Tables List -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+            All Tables ({{ tables|length }})
+        </h3>
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--color-card-border);">
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Table #</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Capacity</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Location</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Status</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Active</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Created At</th>
+                    <th style="text-align: left; padding: var(--spacing-md); font-weight: var(--font-weight-semibold); color: var(--color-foreground);">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for table in tables %}
+                <tr style="border-bottom: 1px solid var(--color-card-border); transition: background-color var(--transition-fast);" onmouseover="this.style.backgroundColor='var(--color-background-secondary)'" onmouseout="this.style.backgroundColor='transparent'">
+                    <td style="padding: var(--spacing-md); font-weight: var(--font-weight-semibold);">{{ table.table_number }}</td>
+                    <td style="padding: var(--spacing-md);">{{ table.capacity }} seats</td>
+                    <td style="padding: var(--spacing-md);">{{ table.location|default:'-' }}</td>
+                    <td style="padding: var(--spacing-md);">
+                        <select class="status-select" data-table-id="{{ table.id }}" style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium); border: none; cursor: pointer;
+                            {% if table.status == 'available' %}background-color: var(--color-success-light); color: var(--color-success);
+                            {% elif table.status == 'occupied' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                            {% elif table.status == 'reserved' %}background-color: var(--color-info-light); color: var(--color-info);
+                            {% elif table.status == 'cleaning' %}background-color: var(--color-gold-light); color: var(--color-gold);
+                            {% elif table.status == 'out_of_order' %}background-color: var(--color-danger-light); color: var(--color-danger);
+                            {% else %}background-color: var(--color-foreground-tertiary); color: var(--color-foreground);{% endif %}">
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if table.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="padding: var(--spacing-md);">
+                        <span class="{% if table.is_active %}text-success{% else %}text-danger{% endif %}">
+                                {% if table.is_active %}Yes{% else %}No{% endif %}
+                            </span>
+                    </td>
+                    <td style="padding: var(--spacing-md);">{{ table.created_at|date:"M d, Y" }}</td>
+                    <td style="padding: var(--spacing-md);">
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <a href="{% url 'restaurant:table_edit' table.pk %}" style="color: var(--color-warning); text-decoration: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast);" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button onclick="updateTableStatus({{ table.pk }})" style="color: var(--color-info); background: none; border: none; padding: var(--spacing-xs); border-radius: var(--radius-sm); transition: all var(--transition-fast); cursor: pointer;" title="Update Status">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: var(--spacing-2xl); text-align: center;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: var(--spacing-md);">
+                            <div style="width: 4rem; height: 4rem; background-color: var(--color-foreground-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-background);">
+                                <i class="fas fa-table" style="font-size: 2rem;"></i>
+                </div>
+                            <div>
+                                <h3 style="font-size: 1.5rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-sm);">
+                                    No tables found
+                                </h3>
+                                <p style="color: var(--color-foreground-secondary); margin-bottom: var(--spacing-lg);">
+                                    Get started by adding your first table.
+                                </p>
+                <a href="{% url 'restaurant:table_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                    Add Table
+                </a>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        </div>
+
+        <!-- Status Legend -->
+<div class="card" style="margin-top: var(--spacing-xl);">
+            <div class="card-header">
+                <h3>Status Legend</h3>
+            </div>
+            <div class="card-content">
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="legend-dot legend-available"></span>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot legend-occupied"></span>
+                        <span>Occupied</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot legend-reserved"></span>
+                        <span>Reserved</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot legend-cleaning"></span>
+                        <span>Cleaning</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot legend-out_of_order"></span>
+                        <span>Out of Order</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+// Status update functionality
+document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const tableId = this.dataset.tableId;
+        const newStatus = this.value;
+        
+        fetch(`/restaurant/tables/${tableId}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: `status=${newStatus}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the select styling based on new status
+                this.style.backgroundColor = 
+                    newStatus === 'available' ? 'var(--color-success-light)' :
+                    newStatus === 'occupied' ? 'var(--color-warning-light)' :
+                    newStatus === 'reserved' ? 'var(--color-info-light)' :
+                    newStatus === 'cleaning' ? 'var(--color-gold-light)' :
+                    newStatus === 'out_of_order' ? 'var(--color-danger-light)' :
+                    'var(--color-foreground-tertiary)';
+                this.style.color = 
+                    newStatus === 'available' ? 'var(--color-success)' :
+                    newStatus === 'occupied' ? 'var(--color-warning)' :
+                    newStatus === 'reserved' ? 'var(--color-info)' :
+                    newStatus === 'cleaning' ? 'var(--color-gold)' :
+                    newStatus === 'out_of_order' ? 'var(--color-danger)' :
+                    'var(--color-foreground)';
+                
+                // Show success message
+                showNotification('Table status updated successfully!', 'success');
+            } else {
+                showNotification('Error updating table status', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error updating table status', 'error');
+        });
+    });
+});
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        background-color: ${type === 'success' ? 'var(--color-success)' : 'var(--color-danger)'};
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function updateTableStatus(tableId) {
+    // This function is now handled by the dropdown change event
+    console.log('Table status update handled by dropdown change event');
+}
+</script>
+{% endblock %} 

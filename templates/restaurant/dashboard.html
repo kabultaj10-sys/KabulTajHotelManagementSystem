@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}Restaurant Dashboard - Kabul Taj Hotel{% endblock %}
+
+{% block content %}
+<!-- Module Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: var(--font-weight-bold); color: var(--color-foreground); margin-bottom: var(--spacing-xs);">
+                Restaurant & Food
+            </h1>
+            <p style="color: var(--color-foreground-secondary); font-size: 1rem;">
+                Manage menu items, orders, and table assignments
+            </p>
+        </div>
+        <div style="display: flex; gap: var(--spacing-md);">
+            <a href="{% url 'restaurant:order_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                New Order
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon gold">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-number">{{ total_orders }}</div>
+        <div class="stat-label">Total Orders</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-warning); color: white;">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-number">{{ pending_orders }}</div>
+        <div class="stat-label">Pending Orders</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-success); color: white;">
+            <i class="fas fa-chair"></i>
+        </div>
+        <div class="stat-number">{{ active_tables }}</div>
+        <div class="stat-label">Active Tables</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: var(--color-info); color: white;">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-number">${{ total_revenue|floatformat:2 }}</div>
+        <div class="stat-label">Today's Revenue</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+    <!-- Recent Orders -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                Recent Orders
+            </h3>
+            <a href="{% url 'restaurant:order_list' %}" style="color: var(--color-gold); text-decoration: none; font-size: 0.875rem;">
+                View All
+            </a>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% for order in recent_orders %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <div style="width: 2rem; height: 2rem; background-color: var(--color-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-gold-foreground); font-size: 0.75rem;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                            {{ order.order_number }}
+                        </div>
+                        <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                            {{ order.guest_name }}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-foreground); font-size: 0.875rem;">
+                        ${{ order.total_amount|floatformat:2 }}
+                    </div>
+                    <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: var(--font-weight-medium);
+                        {% if order.status == 'placed' %}background-color: var(--color-info-light); color: var(--color-info);
+                        {% elif order.status == 'preparing' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                        {% elif order.status == 'ready' %}background-color: var(--color-warning-light); color: var(--color-warning);
+                        {% elif order.status == 'served' %}background-color: var(--color-success-light); color: var(--color-success);
+                        {% elif order.status == 'billed' %}background-color: var(--color-gold-light); color: var(--color-gold);
+                        {% else %}background-color: var(--color-foreground-tertiary); color: var(--color-foreground);{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: var(--spacing-xl); color: var(--color-foreground-secondary);">
+                <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+                <p>No recent orders</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                Recent Transactions
+            </h3>
+            <span style="color: var(--color-foreground-secondary); font-size: 0.875rem;">
+                Revenue History
+            </span>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% for transaction in recent_transactions %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                    <div style="width: 2rem; height: 2rem; background-color: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                            {{ transaction.customer_name }}
+                        </div>
+                        <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                            Table {{ transaction.table_number }} • {{ transaction.created_at|date:"M d, H:i" }}
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-success); font-size: 0.875rem;">
+                        ${{ transaction.amount|floatformat:2 }}
+                    </div>
+                    <div style="color: var(--color-foreground-tertiary); font-size: 0.75rem;">
+                        {{ transaction.get_payment_method_display|default:"Cash" }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: var(--spacing-xl); color: var(--color-foreground-secondary);">
+                <i class="fas fa-dollar-sign" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+                <p>No recent transactions</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+    <!-- Available Tables -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+            <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground);">
+                Available Tables
+            </h3>
+            <a href="{% url 'restaurant:table_list' %}" style="color: var(--color-gold); text-decoration: none; font-size: 0.875rem;">
+                View All
+            </a>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+            {% for table in available_tables %}
+            <div style="padding: var(--spacing-md); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border);">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                            Table {{ table.table_number }}
+                        </div>
+                        <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                            {{ table.capacity }} seats
+                        </div>
+                    </div>
+                    <div style="width: 0.75rem; height: 0.75rem; background-color: var(--color-success); border-radius: 50%;"></div>
+                </div>
+                {% if table.location %}
+                <div style="color: var(--color-foreground-tertiary); font-size: 0.75rem; margin-top: var(--spacing-xs);">
+                    {{ table.location }}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: var(--spacing-xl); color: var(--color-foreground-secondary);">
+                <i class="fas fa-chair" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+                <p>No available tables</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        Quick Actions
+    </h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+        <a href="{% url 'restaurant:order_create' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-success); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    New Order
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Create order
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'restaurant:menu_list' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-info); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Menu Items
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Manage menu
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'restaurant:table_list' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-warning); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-chair"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Tables
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Manage tables
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'restaurant:order_list' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-gold); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: var(--color-gold-foreground);">
+                <i class="fas fa-list"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    All Orders
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    View orders
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'restaurant:billing_dashboard' %}" style="display: flex; align-items: center; padding: var(--spacing-lg); background-color: var(--color-background-secondary); border: 1px solid var(--color-card-border); border-radius: var(--radius-md); text-decoration: none; transition: all var(--transition-fast);">
+            <div style="width: 2.5rem; height: 2.5rem; background-color: var(--color-success); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-right: var(--spacing-md); color: white;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+                <div style="font-weight: var(--font-weight-medium); color: var(--color-foreground); font-size: 0.875rem;">
+                    Restaurant Billing Dashboard
+                </div>
+                <div style="color: var(--color-foreground-secondary); font-size: 0.75rem;">
+                    Manage invoices & billing
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Kitchen Status -->
+<div class="card">
+    <h3 style="font-size: 1.25rem; font-weight: var(--font-weight-semibold); color: var(--color-foreground); margin-bottom: var(--spacing-lg);">
+        Kitchen Status
+    </h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg);">
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                <span style="font-size: 0.875rem; font-weight: var(--font-weight-medium); color: var(--color-foreground);">
+                    Preparing
+                </span>
+                <span style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-warning);">
+                    {{ pending_orders }}
+                </span>
+            </div>
+            <div style="width: 100%; height: 0.5rem; background-color: var(--color-background-tertiary); border-radius: var(--radius-sm); overflow: hidden;">
+                <div style="height: 100%; background-color: var(--color-warning); border-radius: var(--radius-sm); width: 20%;"></div>
+            </div>
+        </div>
+        
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                <span style="font-size: 0.875rem; font-weight: var(--font-weight-medium); color: var(--color-foreground);">
+                    Ready
+                </span>
+                <span style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-warning);">
+                    0
+                </span>
+            </div>
+            <div style="width: 100%; height: 0.5rem; background-color: var(--color-background-tertiary); border-radius: var(--radius-sm); overflow: hidden;">
+                <div style="height: 100%; background-color: var(--color-warning); border-radius: var(--radius-sm); width: 0%;"></div>
+            </div>
+        </div>
+        
+        <div style="padding: var(--spacing-lg); background-color: var(--color-background-secondary); border-radius: var(--radius-md); border: 1px solid var(--color-card-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-md);">
+                <span style="font-size: 0.875rem; font-weight: var(--font-weight-medium); color: var(--color-foreground);">
+                    Served
+                </span>
+                <span style="font-size: 1.5rem; font-weight: var(--font-weight-bold); color: var(--color-success);">
+                    0
+                </span>
+            </div>
+            <div style="width: 100%; height: 0.5rem; background-color: var(--color-background-tertiary); border-radius: var(--radius-sm); overflow: hidden;">
+                <div style="height: 100%; background-color: var(--color-success); border-radius: var(--radius-sm); width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

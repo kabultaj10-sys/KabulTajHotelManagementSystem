@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Create User{% endblock %}
+{% block page_subtitle %}User Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Create User</h1>
+                <p>Add a new staff account with an allowed role</p>
+            </div>
+            <div class="module-actions">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <form method="post" class="form-section">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="message-card message-error" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="form-row">
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-help">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="message-card message-error" style="margin-top: var(--spacing-xs);">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Create
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+            <div class="card-footer" style="color: var(--color-foreground-secondary);">
+                <small>Allowed roles: Receptionist, Cashier, Administrator</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

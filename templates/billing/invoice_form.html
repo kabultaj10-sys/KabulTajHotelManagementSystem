@@ -1,0 +1,720 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Invoice - Kabul Taj Hotel{% endblock %}
+{% block page_title %}Create New Invoice{% endblock %}
+{% block page_subtitle %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="module-container">
+    <div class="module">
+        <div class="module-header">
+            <div class="module-title">
+                <h1>Create New Invoice</h1>
+                <p>Generate a new invoice for services or products</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <form method="post" class="form-section">
+                {% csrf_token %}
+                
+                <!-- Move Invoice Type to be the first input -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="invoice_type">Invoice Type *</label>
+                        <div class="custom-select-wrapper">
+                            <select name="invoice_type" id="invoice_type" class="custom-select-button" required onchange="toggleTypeSelectors()">
+                                <option value="">Select invoice type</option>
+                                <option value="custom" {% if invoice.invoice_type == 'custom' %}selected{% endif %}>Custom Invoice</option>
+                                <option value="gym" {% if invoice.invoice_type == 'gym' %}selected{% endif %}>Gym</option>
+                                <option value="swimming_pool" {% if invoice.invoice_type == 'swimming_pool' %}selected{% endif %}>Swimming Pool</option>
+                                <option value="booking" {% if invoice.invoice_type == 'booking' %}selected{% endif %}>Booking Invoice</option>
+                                <option value="conference" {% if invoice.invoice_type == 'conference' %}selected{% endif %}>Conference Invoice</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="order_selector" class="form-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="booking_id">Select Bookings *</label>
+                        <div class="custom-select-wrapper">
+                            <select name="booking_id" id="booking_id" class="custom-select-button" onchange="loadBookingData()">
+                                <option value="">Select a booking</option>
+                                {% for booking in bookings %}
+                                <option value="{{ booking.id }}"
+                                    data-guest-name="{{ booking.guest.full_name }}"
+                                    data-guest-email="{{ booking.guest.email }}"
+                                    data-guest-phone="{{ booking.guest.phone }}"
+                                    data-room-number="{{ booking.room.room_number }}"
+                                    data-room-type="{{ booking.room.room_type.name }}"
+                                    data-check-in="{{ booking.check_in_date|date:'Y-m-d' }}"
+                                    data-check-out="{{ booking.check_out_date|date:'Y-m-d' }}"
+                                    data-total-amount="{{ booking.total_amount }}"
+                                    data-duration="{{ booking.duration }}">
+                                    {{ booking.booking_number }} - {{ booking.guest.full_name }} ({{ booking.room.room_number }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div id="booking_details" class="booking-details-card" style="display: none;">
+                        <h4>Booking Details</h4>
+                        <div class="booking-info-grid">
+                            <div class="info-item">
+                                <span class="label">Customer:</span>
+                                <span class="value" id="selected_order_customer">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Order Number:</span>
+                                <span class="value" id="selected_order_number">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Total Amount:</span>
+                                <span class="value" id="selected_order_total">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conference Booking Selection -->
+                <div id="conference_selector" class="form-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="conference_booking_id">Select Conference Booking *</label>
+                        <div class="custom-select-wrapper">
+                            <select name="conference_booking_id" id="conference_booking_id" class="custom-select-button" onchange="loadConferenceData()">
+                                <option value="">Select a conference booking</option>
+                                {% for conference_booking in conference_bookings %}
+                                <option value="{{ conference_booking.id }}"
+                                    data-client-name="{{ conference_booking.client_name }}"
+                                    data-client-email="{{ conference_booking.client_email }}"
+                                    data-client-phone="{{ conference_booking.client_phone }}"
+                                    data-room-name="{{ conference_booking.room.name }}"
+                                    data-event-title="{{ conference_booking.event_title }}"
+                                    data-start-datetime="{{ conference_booking.start_datetime|date:'Y-m-d H:i' }}"
+                                    data-end-datetime="{{ conference_booking.end_datetime|date:'Y-m-d H:i' }}"
+                                    data-total-amount="{{ conference_booking.total_amount }}"
+                                    data-attendees="{{ conference_booking.attendees_count }}">
+                                    {{ conference_booking.booking_number }} - {{ conference_booking.event_title }} ({{ conference_booking.room.name }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div id="conference_details" class="booking-details-card" style="display: none;">
+                        <h4>Conference Booking Details</h4>
+                        <div class="booking-info-grid">
+                            <div class="info-item">
+                                <span class="label">Client:</span>
+                                <span class="value" id="selected_conference_client">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Event:</span>
+                                <span class="value" id="selected_conference_event">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Room:</span>
+                                <span class="value" id="selected_conference_room">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Date/Time:</span>
+                                <span class="value" id="selected_conference_datetime">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Attendees:</span>
+                                <span class="value" id="selected_conference_attendees">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Total Amount:</span>
+                                <span class="value" id="selected_conference_total">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row" id="customer_row">
+                    <div class="form-group">
+                        <label for="customer_name">Customer Name *</label>
+                        <input type="text" name="customer_name" id="customer_name" 
+                            value="{{ invoice.customer_name|default:'' }}"
+                            class="input" placeholder="Enter customer name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer_email">Customer Email</label>
+                        <input type="email" name="customer_email" id="customer_email" 
+                            value="{{ invoice.customer_email|default:'' }}"
+                            class="input" placeholder="Enter customer email">
+                    </div>
+                </div>
+
+                <div class="form-row">
+
+                    <!-- Booking Guest Selection -->
+                    <div id="booking_selector" class="form-section" style="display: none;">
+                        <div class="form-group">
+                            <label for="booking_id_legacy">Select Booking *</label>
+                            <div class="custom-select-wrapper">
+                                <select name="booking_id_legacy" id="booking_id_legacy" class="custom-select-button" disabled>
+                                    <option value="">Select a booking</option>
+                                    {% for booking in bookings %}
+                                    <option value="{{ booking.id }}" 
+                                        data-guest-name="{{ booking.guest.full_name }}"
+                                        data-guest-email="{{ booking.guest.email }}"
+                                        data-guest-phone="{{ booking.guest.phone }}"
+                                        data-room-number="{{ booking.room.room_number }}"
+                                        data-room-type="{{ booking.room.room_type.name }}"
+                                        data-check-in="{{ booking.check_in_date|date:'Y-m-d' }}"
+                                        data-check-out="{{ booking.check_out_date|date:'Y-m-d' }}"
+                                        data-total-amount="{{ booking.total_amount }}"
+                                        data-duration="{{ booking.duration }}">
+                                        {{ booking.booking_number }} - {{ booking.guest.full_name }} ({{ booking.room.room_number }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="booking_details_legacy" class="booking-details-card" style="display: none;">
+                            <h4>Booking Details</h4>
+                            <div class="booking-info-grid">
+                                <div class="info-item">
+                                    <span class="label">Guest:</span>
+                                    <span class="value" id="selected_guest_name">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Email:</span>
+                                    <span class="value" id="selected_guest_email">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Phone:</span>
+                                    <span class="value" id="selected_guest_phone">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Room:</span>
+                                    <span class="value" id="selected_room">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Check-in:</span>
+                                    <span class="value" id="selected_check_in">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Check-out:</span>
+                                    <span class="value" id="selected_check_out">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Duration:</span>
+                                    <span class="value" id="selected_duration">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Total Amount:</span>
+                                    <span class="value" id="selected_total_amount">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="amount_group">
+                        <label for="total_amount">Total Amount *</label>
+                        <div class="amount-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" name="total_amount" id="total_amount" 
+                                value="{{ invoice.total_amount|default:'' }}"
+                                class="input amount-input" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Selection placed near top -->
+                
+
+                <div class="form-row" id="due_status_row">
+                    <div class="form-group">
+                        <label for="due_date">Due Date</label>
+                        <input type="date" name="due_date" id="due_date" 
+                            value="{{ invoice.due_date|date:'Y-m-d'|default:'' }}"
+                            class="input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <div class="custom-select-wrapper">
+                            <select name="status" id="status" class="custom-select-button">
+                                <option value="pending" {% if invoice.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="paid" {% if invoice.status == 'paid' %}selected{% endif %}>Paid</option>
+                                <option value="overdue" {% if invoice.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                                <option value="cancelled" {% if invoice.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="description_group">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" rows="4" 
+                        class="input" placeholder="Enter invoice description">{{ invoice.description|default:'' }}</textarea>
+                </div>
+
+                {% if form.errors %}
+                <div class="message-card message-error">
+                    <ul class="list-disc list-inside">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <a href="{% url 'invoice_list' %}" class="btn btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17,21 17,13 7,13 7,21"/>
+                            <polyline points="7,3 7,8 15,8"/>
+                        </svg>
+                        Create Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: var(--spacing-md);
+    color: var(--color-foreground-secondary);
+    font-weight: var(--font-weight-medium);
+    z-index: 1;
+}
+
+.amount-input {
+    padding-left: 2rem;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-group label {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+}
+
+.input {
+    padding: var(--spacing-md);
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    transition: all var(--transition-normal);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.input::placeholder {
+    color: var(--color-foreground-tertiary);
+}
+
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    background-color: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+    transition: all var(--transition-normal);
+}
+
+.custom-select-button:focus {
+    outline: none;
+    border-color: var(--color-input-focus);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.custom-select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--color-foreground-secondary);
+    pointer-events: none;
+}
+
+textarea.input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-card-border);
+    margin-top: var(--spacing-lg);
+}
+
+.message-card {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.message-error {
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+}
+
+.list-disc {
+    list-style-type: disc;
+}
+
+.list-inside {
+    list-style-position: inside;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+
+/* Enhanced focus states */
+.input:focus,
+.custom-select-button:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* Better hover states */
+.input:hover,
+.custom-select-button:hover {
+    border-color: var(--color-foreground-secondary);
+}
+
+/* Improved button styling */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-foreground);
+    border-color: var(--color-card-border);
+}
+
+    .btn-outline:hover {
+        background-color: var(--color-card-hover);
+        border-color: var(--color-foreground-secondary);
+    }
+
+    /* Booking Selector Styles */
+    .booking-details-card {
+        background: var(--color-card-background);
+        border: 1px solid var(--color-card-border);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        margin-top: var(--spacing-md);
+    }
+
+    .booking-details-card h4 {
+        margin: 0 0 var(--spacing-md) 0;
+        color: var(--color-foreground);
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+
+    .booking-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+    }
+
+    .booking-info-grid .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--color-card-border);
+    }
+
+    .booking-info-grid .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .booking-info-grid .label {
+        color: var(--color-foreground-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .booking-info-grid .value {
+        color: var(--color-foreground);
+        font-weight: 500;
+    }
+</style>
+
+<script>
+function toggleTypeSelectors() {
+    const invoiceType = document.getElementById('invoice_type').value;
+    const orderSelector = document.getElementById('order_selector');
+    const bookingSelector = document.getElementById('booking_selector');
+    const conferenceSelector = document.getElementById('conference_selector');
+    
+    // Hide all selectors first
+    orderSelector.style.display = 'none';
+    bookingSelector && (bookingSelector.style.display = 'none');
+    conferenceSelector.style.display = 'none';
+    
+    if (invoiceType === 'booking') {
+        orderSelector.style.display = 'block';
+        setManualFieldsVisibility(false);
+    } else if (invoiceType === 'conference') {
+        conferenceSelector.style.display = 'block';
+        setManualFieldsVisibility(false);
+    } else {
+        clearOrderData();
+        clearConferenceData();
+        setManualFieldsVisibility(true);
+        // Manual fields stay editable for custom, gym, swimming_pool
+    }
+}
+
+function setManualFieldsVisibility(visible) {
+    const displayValue = visible ? '' : 'none';
+    const customerRow = document.getElementById('customer_row');
+    const amountGroup = document.getElementById('amount_group');
+    const dueStatusRow = document.getElementById('due_status_row');
+    const descriptionGroup = document.getElementById('description_group');
+
+    if (customerRow) customerRow.style.display = displayValue;
+    if (amountGroup) amountGroup.style.display = displayValue;
+    if (dueStatusRow) dueStatusRow.style.display = displayValue;
+    if (descriptionGroup) descriptionGroup.style.display = displayValue;
+
+    // Toggle editability and required flags
+    const customerName = document.getElementById('customer_name');
+    const customerEmail = document.getElementById('customer_email');
+    const totalAmount = document.getElementById('total_amount');
+    const dueDate = document.getElementById('due_date');
+    const status = document.getElementById('status');
+
+    if (customerName) {
+        customerName.readOnly = !visible;
+        if (visible) customerName.setAttribute('required', 'required');
+        else customerName.removeAttribute('required');
+    }
+    if (customerEmail) customerEmail.readOnly = !visible;
+    if (totalAmount) {
+        totalAmount.readOnly = !visible;
+        if (visible) totalAmount.setAttribute('required', 'required');
+        else totalAmount.removeAttribute('required');
+    }
+    if (dueDate) dueDate.readOnly = !visible;
+    if (status) status.disabled = !visible;
+}
+
+function loadBookingData() {
+    const bookingSelect = document.getElementById('booking_id');
+    const selectedOption = bookingSelect.options[bookingSelect.selectedIndex];
+    const bookingDetails = document.getElementById('booking_details');
+    
+    if (selectedOption.value) {
+        // Show booking details
+        bookingDetails.style.display = 'block';
+        
+        // Populate booking details
+        document.getElementById('selected_guest_name').textContent = selectedOption.dataset.guestName;
+        document.getElementById('selected_guest_email').textContent = selectedOption.dataset.guestEmail;
+        document.getElementById('selected_guest_phone').textContent = selectedOption.dataset.guestPhone;
+        document.getElementById('selected_room').textContent = selectedOption.dataset.roomNumber + ' (' + selectedOption.dataset.roomType + ')';
+        document.getElementById('selected_check_in').textContent = selectedOption.dataset.checkIn;
+        document.getElementById('selected_check_out').textContent = selectedOption.dataset.checkOut;
+        document.getElementById('selected_duration').textContent = selectedOption.dataset.duration + ' days';
+        document.getElementById('selected_total_amount').textContent = '$' + selectedOption.dataset.totalAmount;
+        
+        // Auto-fill invoice form
+        document.getElementById('customer_name').value = selectedOption.dataset.guestName;
+        document.getElementById('customer_email').value = selectedOption.dataset.guestEmail;
+        document.getElementById('total_amount').value = selectedOption.dataset.totalAmount;
+        
+        // Set due date to check-out date
+        document.getElementById('due_date').value = selectedOption.dataset.checkOut;
+
+        // Ensure manual fields remain hidden/non-editable in booking mode
+        setManualFieldsVisibility(false);
+    } else {
+        bookingDetails.style.display = 'none';
+        clearBookingData();
+        // If type is booking but nothing selected yet, keep manual fields hidden
+        const type = document.getElementById('invoice_type').value;
+        if (type !== 'booking') setManualFieldsVisibility(true);
+    }
+}
+
+function clearBookingData() {
+    document.getElementById('booking_details').style.display = 'none';
+    document.getElementById('customer_name').value = '';
+    document.getElementById('customer_email').value = '';
+    document.getElementById('total_amount').value = '';
+    document.getElementById('due_date').value = '';
+}
+
+function loadOrderData() {
+    const orderSelect = document.getElementById('order_id');
+    const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+    const orderDetails = document.getElementById('order_details');
+
+    if (selectedOption.value) {
+        orderDetails.style.display = 'block';
+
+        const customer = selectedOption.dataset.guestName;
+        const orderNumber = selectedOption.dataset.orderNumber;
+        const total = selectedOption.dataset.totalAmount;
+
+        document.getElementById('selected_order_customer').textContent = customer;
+        document.getElementById('selected_order_number').textContent = orderNumber;
+        document.getElementById('selected_order_total').textContent = '$' + total;
+
+        // Auto-fill invoice fields
+        document.getElementById('customer_name').value = customer;
+        document.getElementById('total_amount').value = total;
+    } else {
+        clearOrderData();
+    }
+}
+
+function clearOrderData() {
+    const details = document.getElementById('order_details');
+    if (details) details.style.display = 'none';
+}
+
+function loadConferenceData() {
+    const conferenceSelect = document.getElementById('conference_booking_id');
+    const selectedOption = conferenceSelect.options[conferenceSelect.selectedIndex];
+    const conferenceDetails = document.getElementById('conference_details');
+    
+    if (selectedOption.value) {
+        // Show conference details
+        conferenceDetails.style.display = 'block';
+        
+        // Populate conference details
+        document.getElementById('selected_conference_client').textContent = selectedOption.dataset.clientName;
+        document.getElementById('selected_conference_event').textContent = selectedOption.dataset.eventTitle;
+        document.getElementById('selected_conference_room').textContent = selectedOption.dataset.roomName;
+        document.getElementById('selected_conference_datetime').textContent = selectedOption.dataset.startDatetime + ' - ' + selectedOption.dataset.endDatetime;
+        document.getElementById('selected_conference_attendees').textContent = selectedOption.dataset.attendees;
+        document.getElementById('selected_conference_total').textContent = '$' + selectedOption.dataset.totalAmount;
+        
+        // Auto-fill invoice form
+        document.getElementById('customer_name').value = selectedOption.dataset.clientName;
+        document.getElementById('customer_email').value = selectedOption.dataset.clientEmail;
+        document.getElementById('total_amount').value = selectedOption.dataset.totalAmount;
+        
+        // Set due date to conference end date
+        document.getElementById('due_date').value = selectedOption.dataset.endDatetime.split(' ')[0];
+
+        // Ensure manual fields remain hidden/non-editable in conference mode
+        setManualFieldsVisibility(false);
+    } else {
+        conferenceDetails.style.display = 'none';
+        clearConferenceData();
+    }
+}
+
+function clearConferenceData() {
+    const details = document.getElementById('conference_details');
+    if (details) details.style.display = 'none';
+    document.getElementById('customer_name').value = '';
+    document.getElementById('customer_email').value = '';
+    document.getElementById('total_amount').value = '';
+    document.getElementById('due_date').value = '';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleTypeSelectors();
+});
+</script>
+{% endblock %}
