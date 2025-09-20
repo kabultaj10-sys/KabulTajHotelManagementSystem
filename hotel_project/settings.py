@@ -79,6 +79,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://kabultaj.up.railway.app',
     # Add other trusted origins if needed
 ]
+# TEMPORARY - for testing only
+CSRF_TRUSTED_ORIGINS = ['https://*.up.railway.app', 'http://*.up.railway.app']
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
