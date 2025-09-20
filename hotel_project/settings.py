@@ -74,7 +74,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
-
+# In your settings.py
+CSRF_TRUSTED_ORIGINS = [
+    'https://kabultaj.up.railway.app',
+    # Add other trusted origins if needed
+]
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
