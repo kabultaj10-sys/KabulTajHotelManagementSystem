@@ -5,7 +5,8 @@
     "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
   },
   "deploy": {
-    "startCommand": "python createadmin.py && python manage.py migrate && gunicorn hotel_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -",
+    "releaseCommand": "python manage.py migrate && python createadmin.py",
+    "startCommand": "gunicorn hotel_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -",
     "healthcheckPath": "/health/",
     "healthcheckTimeout": 30,
     "healthcheckInterval": 15,
