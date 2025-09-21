@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 
 def create_superuser():
     User = get_user_model()
-    username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    username = "admin"
     
     # Check if superuser already exists
     if User.objects.filter(is_superuser=True).exists():
@@ -18,8 +18,8 @@ def create_superuser():
         return True
     
     # Only create if doesn't exist
-    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
-    email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '')
+    password = "KabulTaj@ByteRender@2025"
+    email = "kabultaj10@gmail.com"
     
     if not password:
         print("No password set. Skipping superuser creation.")
