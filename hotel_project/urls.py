@@ -20,6 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
+from django.http import JsonResponse
+from django.urls import path
+
+def health_check(request):
+    return JsonResponse({"status": "healthy"})
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +36,7 @@ urlpatterns = [
     path('restaurant/', include('apps.restaurant.urls')),
     path('conference/', include(('apps.conference.urls', 'conference'), namespace='conference')),
     path('billing/', include('apps.billing.urls')),
+    path('health/', health_check, name='health-check'),
 ]
 
 if settings.DEBUG:
