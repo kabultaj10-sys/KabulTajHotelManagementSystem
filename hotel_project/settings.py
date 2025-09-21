@@ -48,7 +48,7 @@ DJANGO_APPS = [
     
     
     "whitenoise.runserver_nostatic",
-    "django.contrib.staticfiles",
+    
 ]
 
 THIRD_PARTY_APPS = [
