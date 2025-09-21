@@ -5,7 +5,7 @@ Django settings for hotel_project.
 import os
 from pathlib import Path
 from decouple import config
-import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,21 +14,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '=jtim)%+!q^!kqyy0$vv6zer_c17z_%c+_&7^ksk9m!_st19lb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True
 
 # Host/domain names that this site can serve
+# ALLOWED_HOSTS = config(
+#     'ALLOWED_HOSTS', 
+#     default='.railway.app,.up.railway.app,localhost,127.0.0.1'
+# ).split(',')
+
+
+
 ALLOWED_HOSTS = [
-    '.railway.app',  # allows all railway subdomains
-    '.up.railway.app',  # allows all up.railway.app subdomains
-    'localhost',
-    '127.0.0.1',
+    "*",
 ]
 
+
+
 # CSRF protection settings
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app',
-    'https://*.up.railway.app',
-]
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.railway.app,https://*.up.railway.app'
+).split(',')
 
 # Application definition
 DJANGO_APPS = [
@@ -38,6 +44,11 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    
+    
+    "whitenoise.runserver_nostatic",
+    "django.contrib.staticfiles",
 ]
 
 THIRD_PARTY_APPS = [
@@ -88,14 +99,33 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hotel_project.wsgi.application'
 
-# Database Configuration - Using your specific PostgreSQL URL
+# Database Configuration - Use environment variable with external URL as default
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://postgres:ISIImeCBhgZNIRvvzmBxySWviCprRnmb@shinkansen.proxy.rlwy.net:10254/railway',
+#         conn_max_age=600,
+#         ssl_require=not DEBUG
+#     )
+# }
+
+
 DATABASES = {
-    'default': dj_database_url.parse(
-        'postgresql://postgres:ISIImeCBhgZNIRvvzmBxySWviCprRnmb@postgres.railway.internal:5432/railway',
-        conn_max_age=600,
-        ssl_require=not DEBUG
-    )
+    'default':{
+        "ENGINE" : 'django.db.backends.postgresql',
+        "NAME"   : 'railway',
+        "USER"   : "postgres",
+        "PASSWORD": "ISIImeCBhgZNIRvvzmBxySWviCprRnmb",
+        "HOST": "shinkansen.proxy.rlwy.net",
+        "PORT" : "10254",
+    }
+    
 }
+
+
+
+
+
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
