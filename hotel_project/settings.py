@@ -25,7 +25,7 @@ DEBUG = False
 
 
 ALLOWED_HOSTS = [
-    "kabultaj.up.railway.app",
+    "*",
 ]
 
 
