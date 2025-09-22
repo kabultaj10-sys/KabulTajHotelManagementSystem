@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '=jtim)%+!q^!kqyy0$vv6zer_c17z_%c+_&7^ksk9m!_st19lb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Host/domain names that this site can serve
 # ALLOWED_HOSTS = config(
